@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aurora — Settings</title>
+  <link rel="stylesheet" href="../shared/theme.css" />
+  <style>
+    .wrap { padding:20px; max-width:560px; margin:0 auto; }
+    .row { display:flex; justify-content:space-between; align-items:center;
+      padding:16px; background:var(--bg-elev); border:1px solid #1c2340;
+      border-radius:var(--radius); margin-bottom:10px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Settings</h1>
+    <div class="row"><span>Default search engine</span><b id="engine">—</b></div>
+    <div class="row"><span>HTTPS only</span><b>On</b></div>
+    <div class="row"><span>Max results</span><b id="max">300</b></div>
+  </div>
+  <script src="../shared/aurora-api.js"></script>
+  <script>
+    Aurora.ready('settings');
+    Aurora.on('payload', (d) => {
+      document.getElementById('engine').textContent = d.engine || 'DuckDuckGo';
+      document.getElementById('max').textContent = d.maxResults || 300;
+    });
+  </script>
+</body>
+</html>

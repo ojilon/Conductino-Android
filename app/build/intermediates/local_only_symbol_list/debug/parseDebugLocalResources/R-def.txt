@@ -1,0 +1,11 @@
+R_DEF: Internal format may change without notice
+local
+color aurora_accent
+color aurora_accent2
+color aurora_bg
+id web_view
+layout activity_browser
+mipmap ic_launcher
+string app_name
+string omnibox_hint
+style Theme.Aurora

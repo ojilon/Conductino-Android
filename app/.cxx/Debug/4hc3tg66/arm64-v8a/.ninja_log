@@ -1,0 +1,7 @@
+# ninja log v5
+2	2662	8049493071219322	CMakeFiles/aurora_core.dir/core.c.o	35066afc988a729a
+44	2797	8049493072468899	CMakeFiles/aurora_core.dir/jni_bridge.c.o	36d957ca8f0e58a3
+58	2822	8049493072000284	CMakeFiles/aurora_core.dir/html_parser.c.o	d9be25560b8dc75d
+72	2880	8049493073406080	CMakeFiles/aurora_core.dir/storage.c.o	f122cbbd310d684d
+87	15996	8049493203683145	CMakeFiles/aurora_core.dir/third_party/sqlite/sqlite3.c.o	db724d4f93585f9f
+15999	16505	8049493209774937	C:/Users/ojilong/Desktop/android-browser/app/build/intermediates/cxx/Debug/4hc3tg66/obj/arm64-v8a/libaurora_core.so	fad76f973a9f24ae

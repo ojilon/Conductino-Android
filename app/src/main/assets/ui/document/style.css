@@ -1,0 +1,7 @@
+.doc-chrome { display: flex; align-items: center; gap: 8px; padding: 10px 12px; }
+.icon { width: 40px; height: 40px; border-radius: 12px; border: 1px solid #26305a;
+  background: var(--bg-elev); color: var(--fg); font-size: 20px; }
+.progress { height: 2px; width: 0; background: var(--accent);
+  transition: width .3s ease; }
+.progress.done { width: 100%; opacity: 0; transition: width .3s, opacity .4s .2s; }
+.page { padding: 16px; background: #fff; color: #111; min-height: 70vh; }

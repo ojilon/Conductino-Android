@@ -1,0 +1,9 @@
+.tabs { display: flex; gap: 4px; padding: 10px; border-bottom: 1px solid #1c2340; }
+.tabs button { flex: 1; background: transparent; color: var(--muted);
+  border: 0; padding: 10px; border-radius: 10px; font-size: 14px; }
+.tabs button.active { background: var(--bg-elev); color: var(--accent); }
+.panel { display: none; padding: 14px; font-family: var(--font-display); font-size: 12px; }
+.panel.active { display: block; animation: fade .2s ease both; }
+#net { width: 100%; border-collapse: collapse; }
+#net td { border-bottom: 1px solid #1c2340; padding: 8px 6px; color: var(--muted); }
+@keyframes fade { from { opacity: 0; } }

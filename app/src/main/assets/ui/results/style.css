@@ -1,0 +1,14 @@
+.results-top { padding: 16px 16px 8px; position: sticky; top: 0;
+  background: linear-gradient(var(--bg), rgba(11,16,32,.85)); backdrop-filter: blur(8px); }
+.meta { color: var(--muted); font-size: 13px; margin-top: 8px; }
+.results { list-style: none; margin: 0; padding: 8px 12px 40px; }
+.result {
+  padding: 16px; margin-bottom: 10px; border-radius: var(--radius);
+  background: var(--bg-elev); border: 1px solid #1c2340;
+  transition: transform .15s, border-color .15s; animation: rise .25s ease both;
+}
+.result:active { transform: scale(.985); border-color: var(--accent2); }
+.result .url { color: var(--accent); font-size: 12px; word-break: break-all; }
+.result h3 { margin: 4px 0 6px; font-size: 17px; }
+.result p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.4; }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } }

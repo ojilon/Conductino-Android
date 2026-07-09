@@ -1,0 +1,31 @@
+/* Shared design tokens across every UI state. */
+:root {
+  --bg: #0b1020;
+  --bg-elev: #141a30;
+  --fg: #e8ecfb;
+  --muted: #8891b4;
+  --accent: #5ee7c4;
+  --accent2: #7c7bff;
+  --radius: 14px;
+  --font-display: "Space Mono", ui-monospace, monospace;
+  --font-body: system-ui, -apple-system, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; height: 100%;
+  background: radial-gradient(120% 120% at 50% -10%, #16204a 0%, var(--bg) 55%);
+  color: var(--fg);
+  font-family: var(--font-body);
+  -webkit-tap-highlight-color: transparent;
+}
+.omnibox {
+  display: flex; gap: 8px; align-items: center;
+  background: var(--bg-elev);
+  border: 1px solid #26305a;
+  border-radius: 999px;
+  padding: 12px 16px;
+}
+.omnibox input {
+  flex: 1; background: transparent; border: 0; outline: 0;
+  color: var(--fg); font-size: 16px;
+}

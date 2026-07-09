@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "default": "duckduckgo",
+  "engines": [
+    {
+      "id": "duckduckgo",
+      "name": "DuckDuckGo",
+      "queryUrl": "https://duckduckgo.com/html/?q={query}",
+      "suggestUrl": "https://duckduckgo.com/ac/?q={query}&type=list",
+      "resultSelector": ".result",
+      "faviconOrigin": "https://icons.duckduckgo.com"
+    },
+    {
+      "id": "google",
+      "name": "Google",
+      "queryUrl": "https://www.google.com/search?q={query}",
+      "suggestUrl": "https://suggestqueries.google.com/complete/search?client=firefox&q={query}",
+      "resultSelector": "div.g"
+    },
+    {
+      "id": "brave",
+      "name": "Brave Search",
+      "queryUrl": "https://search.brave.com/search?q={query}",
+      "suggestUrl": "https://search.brave.com/api/suggest?q={query}",
+      "resultSelector": "#results .snippet"
+    }
+  ]
+}

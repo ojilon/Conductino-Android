@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.aurora.browser.app-debug-4:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.aurora.browser.app-main-6:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "D:\\.gradle\\daemon\\8.14.5\\com.aurora.browser.app-debug-4:\\layout_activity_browser.xml.flat",
+        "source": "D:\\.gradle\\daemon\\8.14.5\\com.aurora.browser.app-main-6:\\layout\\activity_browser.xml"
+    }
+]

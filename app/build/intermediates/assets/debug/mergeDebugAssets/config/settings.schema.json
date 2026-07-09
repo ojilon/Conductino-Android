@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AuroraBrowser Settings",
+  "type": "object",
+  "required": ["version", "general"],
+  "properties": {
+    "version": { "type": "integer" },
+    "general": {
+      "type": "object",
+      "properties": {
+        "startupState": {
+          "type": "string",
+          "enum": ["welcome", "search", "results", "document"]
+        },
+        "maxSearchResults": { "type": "integer", "minimum": 1, "maximum": 1000 }
+      }
+    },
+    "network": {
+      "type": "object",
+      "properties": {
+        "streamThresholdBytes": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "./settings.schema.json",
+  "version": 1,
+  "general": {
+    "startupState": "welcome",
+    "restoreTabsOnLaunch": true,
+    "maxSearchResults": 300,
+    "homeUrl": "appassets://ui/welcome/index.html"
+  },
+  "appearance": {
+    "theme": "aurora-dark",
+    "reduceMotion": false,
+    "fontScale": 1.0
+  },
+  "privacy": {
+    "sendDoNotTrack": true,
+    "blockThirdPartyCookies": true,
+    "clearOnExit": false,
+    "httpsOnly": true
+  },
+  "network": {
+    "streamThresholdBytes": 262144,
+    "downloadMimeAllowlist": ["text/html", "application/xhtml+xml"],
+    "streamMimeAllowlist": ["text/css", "application/javascript", "image/*", "font/*"],
+    "userAgent": "AuroraBrowser/0.1 (Android; Mobile)"
+  },
+  "devtools": {
+    "enabled": true,
+    "showNetworkPanel": true,
+    "showConsole": true
+  }
+}

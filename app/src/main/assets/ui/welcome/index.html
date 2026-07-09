@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Aurora — New Tab</title>
+  <link rel="stylesheet" href="../shared/theme.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="welcome">
+    <div class="brand">aurora://</div>
+    <h1>Where do you want to go?</h1>
+    <form id="omni" class="omnibox">
+      <span class="glyph">⌕</span>
+      <input id="q" type="text" placeholder="Search or type a URL" autofocus />
+    </form>
+    <nav class="shortcuts" id="shortcuts"></nav>
+    <button class="ghost" id="dev">Developer Tools</button>
+  </main>
+  <script src="../shared/aurora-api.js"></script>
+  <script src="logic.js"></script>
+</body>
+</html>

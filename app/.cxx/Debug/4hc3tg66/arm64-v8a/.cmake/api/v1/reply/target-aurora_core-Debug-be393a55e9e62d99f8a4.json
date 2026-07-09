@@ -1,0 +1,197 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "C:/Users/ojilong/Desktop/android-browser/app/build/intermediates/cxx/Debug/4hc3tg66/obj/arm64-v8a/libaurora_core.so"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"target_link_libraries",
+			"target_compile_definitions",
+			"target_include_directories"
+		],
+		"files" : 
+		[
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 17,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 32,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 35,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 25,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC"
+				},
+				{
+					"fragment" : "-std=gnu11"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 3,
+					"define" : "SQLITE_DEFAULT_MEMSTATUS=0"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "SQLITE_OMIT_DEPRECATED"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "SQLITE_THREADSAFE=1"
+				},
+				{
+					"define" : "aurora_core_EXPORTS"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 4,
+					"path" : "C:/Users/ojilong/Desktop/android-browser/app/src/main/cpp/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "C:/Users/ojilong/Desktop/android-browser/app/src/main/cpp/third_party/sqlite"
+				}
+			],
+			"language" : "C",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "11"
+			},
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4
+			],
+			"sysroot" : 
+			{
+				"path" : "D:/AndroidCLI/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/windows-x86_64/sysroot"
+			}
+		}
+	],
+	"id" : "aurora_core::@6890427a1f51a3e7e1df",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-Wl,--build-id=sha1 -Wl,--no-rosegment -Wl,--no-undefined-version -Wl,--fatal-warnings -Wl,--no-undefined -Qunused-arguments",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "D:\\AndroidCLI\\sdk\\ndk\\29.0.14206865\\toolchains\\llvm\\prebuilt\\windows-x86_64\\sysroot\\usr\\lib\\aarch64-linux-android\\26\\liblog.so",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-latomic -lm",
+				"role" : "libraries"
+			}
+		],
+		"language" : "C",
+		"sysroot" : 
+		{
+			"path" : "D:/AndroidCLI/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/windows-x86_64/sysroot"
+		}
+	},
+	"name" : "aurora_core",
+	"nameOnDisk" : "libaurora_core.so",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "jni_bridge.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "core.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "html_parser.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "storage.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "third_party/sqlite/sqlite3.c",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "SHARED_LIBRARY"
+}

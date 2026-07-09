@@ -1,0 +1,83 @@
+// ─────────────────────────────────────────────────────────────
+// :app module — the Android application + JNI bridge to the C core.
+// ─────────────────────────────────────────────────────────────
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.aurora.browser'
+    compileSdk 36
+
+    ndkVersion "29.0.14206865"
+
+    defaultConfig {
+        applicationId 'com.aurora.browser'
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "0.0.1"
+
+        // Native ABIs — read from gradle.properties
+        ndk { 
+            def abiProperty = project.findProperty("aurora.abiFilters") as String
+            if (abiProperty != null) {
+                abiFilters.addAll(abiProperty.split(",").collect { it.trim() })
+            }
+        }
+
+        externalNativeBuild {
+            cmake {
+                // Pass flags to the C core build. (Note: -std=c11 is for C, use c++ flags if using C++)
+                cppFlags "-std=c11"
+                arguments "-DANDROID_STL=c++_shared"
+            }
+        }
+    }
+
+    // JNI / C backend build entry point.
+    externalNativeBuild {
+        cmake {
+            path file("src/main/cpp/CMakeLists.txt")
+            version "3.22.1"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            jniDebuggable true
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    // The per-state HTML/CSS/JS UIs live in src/main/assets/ui/**
+    // and are served to the WebView via a virtual https://appassets/ origin.
+    aaptOptions {
+        noCompress 'db', 'wasm'
+    }
+}
+
+dependencies {
+    // AndroidX core — WebView plumbing, lifecycle.
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.webkit:webkit:1.11.0'           // WebViewAssetLoader, WebMessage
+    implementation 'androidx.lifecycle:lifecycle-runtime:2.8.4'
+
+    // JSON config parsing (settings/*.json).
+    implementation 'com.google.code.gson:gson:2.11.0'
+
+    // OkHttp — network fetch layer that decides download-vs-stream.
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
+    // Test scaffolding
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+}

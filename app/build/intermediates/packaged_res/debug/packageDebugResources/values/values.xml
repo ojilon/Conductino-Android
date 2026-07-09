@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="aurora_accent">#5EE7C4</color>
+    <color name="aurora_accent2">#7C7BFF</color>
+    <color name="aurora_bg">#0B1020</color>
+    <string name="app_name">Aurora</string>
+    <string name="omnibox_hint">Search or type a URL</string>
+    <style name="Theme.Aurora" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:statusBarColor">@color/aurora_bg</item>
+        <item name="android:navigationBarColor">@color/aurora_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowBackground">@color/aurora_bg</item>
+    </style>
+</resources>
