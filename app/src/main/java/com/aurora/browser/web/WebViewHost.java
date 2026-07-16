@@ -41,7 +41,7 @@ public class WebViewHost {
         s.setLoadWithOverviewMode(true);
 
         WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
-                .addPathHandler("/ui/", new WebViewAssetLoader.AssetsPathHandler(activity))
+                .addPathHandler("/", new WebViewAssetLoader.AssetsPathHandler(activity))
                 .build();
 
         webView.setWebViewClient(new AuroraWebViewClient(assetLoader));

@@ -1,0 +1,14 @@
+# Gradle build directories
+build/
+app/build/
+.gradle/
+
+# C++ / JNI build artifacts
+.cxx/
+*.so
+*.dll
+*.dylib
+
+# Local configuration files (contains local SDK/NDK paths)
+local.properties
+.externalNativeBuild/
