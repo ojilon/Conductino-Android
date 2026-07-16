@@ -89,6 +89,8 @@ dependencies {
     // OkHttp — network fetch layer that decides download-vs-stream.
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 
+    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
+
     // ─────────────────────────────────────────────────────────────
     // Test Dependencies (Unit Tests)
     // ─────────────────────────────────────────────────────────────
