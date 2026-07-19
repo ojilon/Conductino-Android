@@ -22,6 +22,7 @@ public class AuroraApplication extends Application {
         LogManager.i("App", "Aurora Browser starting up");
 
         // Load settings/*.json before anything else touches config.
+        // Load settings/*.json before vanything else touches config.
         SettingsManager.get().load(this);
 
         // Bring the native (C) core online through JNI.

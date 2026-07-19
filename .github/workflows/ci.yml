@@ -1,0 +1,45 @@
+name: Aurora Browser CI/CD
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          submodules: true # Ensures any git submodules are pulled
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17' # Matches compileOptions in build.gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # Grant execute permission for the Gradle wrapper (crucial for Linux runners)
+      - name: Make Gradle Wrapper Executable
+        run: chmod +x gradlew
+
+      # 1. Run local Unit Tests (Robolectric + JUnit)
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+
+      # 2. Build the Debug and Release APKs
+      - name: Build APKs
+        run: ./gradlew assembleDebug assembleRelease
+
+      # 3. Upload the build artifacts (APKs) so you can download them from GitHub
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: aurora-apks
+          path: app/build/outputs/apk/**/*.apk
