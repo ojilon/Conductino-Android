@@ -1,5 +1,6 @@
 package com.aurora.browser.net;
 
+import com.aurora.browser.core.NativeCore;
 import com.aurora.browser.logging.LogManager;
 import com.aurora.browser.settings.SettingsManager;
 import com.aurora.browser.state.BrowserState;
@@ -28,44 +29,18 @@ public class NavigationController {
 
     public void handleInput(String text) {
         NetExecutor.io(() -> {
-            if (UrlClassifier.looksLikeUrl(text)) {
-                navigate(UrlClassifier.normalize(text));
-            } else {
-                runSearch(text);
-            }
-        });
-    }
+            //send raw text directly to the C backend
+            String jsonPayload = NativeCore.get().processRequest(text);
 
-    public void navigate(String url) {
-        NetExecutor.io(() -> {
-            FetchResult res = Fetcher.get().fetchDocument(url);
-            ResponseType type = ResponseClassifier.classify(res);
-            switch (type) {
-                case HTML_DOCUMENT:
-                    StateManager.get().transitionTo(BrowserState.DOCUMENT, res.toJson());
-                    break;
-                case MEDIA:
-                    StateManager.get().transitionTo(BrowserState.DOCUMENT, res.toMediaJson());
-                    break;
-                case ERROR:
-                default:
-                    StateManager.get().transitionTo(BrowserState.ERROR, res.errorJson());
-            }
+            // For now, assume C returns a DOCUMENT payload. 
+            // Later, C will return specific JSON indicating if it's an ERROR, RESULTS, or DOCUMENT.
+            StateManager.get().transitionTo(BrowserState.DOCUMENT, jsonPayload);
         });
-    }
-
-    private void runSearch(String query) {
-        int limit = SettingsManager.get().maxSearchResults();
-        SearchResultSet set = SearchEngineClient.get().search(engineId, query, limit);
-        if (set.size() == 1 && set.isDirectHit()) {
-            navigate(set.first().url);            // "gmail" -> straight to site
-        } else {
-            StateManager.get().transitionTo(BrowserState.RESULTS, set.toJson());
-        }
     }
 
     public String suggestions(String partial) {
-        return SearchEngineClient.get().suggest(engineId, partial);
+        // We will move this to C later. Leave as is for now, or return "[]" to disable temporarily.
+        return "[]";
     }
 
     public void openDevTools() {

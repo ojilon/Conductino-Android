@@ -36,6 +36,8 @@ public final class NativeCore {
     // ── native declarations ────────────────────────────────
     private native int nativeBoot(String appDir);
 
+    public native String processRequest(String input);
+
     /** Parse engine HTML into a JSON result array, capped at 'limit'. */
     public native String parseSearchResults(String html, String selector, int limit);
 

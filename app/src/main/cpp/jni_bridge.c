@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "aurora_core.h"
+#include "third_party/cjson/cJSON.h"
 
 #define CLS "Java_com_aurora_browser_core_NativeCore_"
 
@@ -34,8 +35,7 @@ Java_com_aurora_browser_core_NativeCore_parseSearchResults(JNIEnv *env, jobject 
 }
 
 JNIEXPORT void JNICALL
-Java_com_aurora_browser_core_NativeCore_addHistory(JNIEnv *env, jobject thiz,
-        jstring url, jstring title, jlong ts) {
+Java_com_aurora_browser_core_NativeCore_addHistory(JNIEnv *env, jobject thiz, jstring url, jstring title, jlong ts) {
     const char *u = (*env)->GetStringUTFChars(env, url, NULL);
     const char *t = (*env)->GetStringUTFChars(env, title, NULL);
     aurora_add_history(u, t, (long long) ts);
@@ -51,4 +51,19 @@ Java_com_aurora_browser_core_NativeCore_recentHistory(JNIEnv *env, jobject thiz,
 JNIEXPORT jstring JNICALL
 Java_com_aurora_browser_core_NativeCore_versionInfo(JNIEnv *env, jobject thiz) {
     return (*env)->NewStringUTF(env, aurora_version_info());
+}
+
+
+JNIEXPORT jstring JNICALL
+Java_com_aurora_browser_core_NativeCore_processRequest(JNIEnv *env, jobject thiz, jstring input) {
+    const char *c_input = (*env) -> GetStringUTFChars(env, input, NULL);
+
+    //Call the C core
+    char *json_response = aurora_process_request(c_input);
+
+    (*env) -> ReleaseStringUTFChars(env, input, c_input);
+
+    //Convert back to java string and free the C string
+    return c_to_j(env, json_response);
+
 }
