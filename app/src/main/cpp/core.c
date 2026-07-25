@@ -91,10 +91,29 @@ char* aurora_process_request(const char *input) {
 
     //return JSON payload to Java
     //for now: returning a simple payload indicating the file is ready
-    char buffer[2048];
+    char buffer[8192]; //ensure buffer is large enough for basic html
     if (success) {
-        snprintf(buffer, sizeof(buffer), "{\"url\":\"%s\",\"html\":\"<h1>Download Complete</h1><p>File saved to: %s</p>\"}", 
-            target_url, temp_file_path);
+        //Read modified html from disk
+        FILE *fp = fopen(file_path, "rb");
+        if (fp) {
+            fseek(fp, 0, SEEK_END);
+            long fsize = ftell(fp);
+            fseek(fp, 0, SEEK_SET);
+
+            char *html_content = (char *)malloc(fsize + 1);
+            fread(html_content,1, fsize, fp);
+            html_content[fsize] = 0;
+            fclose(fp);
+
+            /*
+            NOTE: In production, escape double quotes in html_content
+            before embedding it in json string.
+            */
+            snprintf(buffer, sizeof(buffer), 
+                "{\"url\":\"%s\",\"html\":\"%s\"}", target_url, html_content);
+                
+            free(html_content);
+        }
     }else {
         snprintf(buffer, sizeof(buffer), 
             "{\"url\":\"%s\",\"error\":\"Network request failed.\"}", 
@@ -136,7 +155,7 @@ char* aurora_resolve_local_path(const char* url) {
         }else {
             fclose(file);
         }
-        
+
         char *out = (char *)malloc(strlen(buffer) + 1);
         if (out) strcpy(out, buffer);
         return out;
