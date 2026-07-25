@@ -46,10 +46,10 @@ public class BrowserBridge {
     }
 
     /** Open a specific result URL from the results list. */
-    @JavascriptInterface
-    public void openResult(String url) {
-        NavigationController.get().navigate(url);
-    }
+    //@JavascriptInterface
+    //public void openResult(String url) {
+      //  NavigationController.get().navigate(url);
+    //}
 
     /** Return typeahead suggestions as JSON (frontend renders them). */
     @JavascriptInterface

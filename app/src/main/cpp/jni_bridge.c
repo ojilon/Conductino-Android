@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "aurora_core.h"
-#include "third_party/cjson/cJSON.h"
 
 #define CLS "Java_com_aurora_browser_core_NativeCore_"
 
