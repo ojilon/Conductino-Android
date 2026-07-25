@@ -6,8 +6,8 @@
 #include <android/log.h>
 
 #define TAG "Aurora/network"
-#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, TAG, __VA__ARGS__)
-#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, TAG, __VA__ARGS__)
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__)
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)
 
 //The callback that writes network chunks directly to disk
 static size_t write_callback(void *contents, size_t size, size_t nmemb, void *userp) {

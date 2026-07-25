@@ -28,15 +28,27 @@ static lxb_status_t serialize_cb(const lxb_char_t *data, size_t len, void *ctx) 
 }
 
 //Helper to rewrite attributes in a collection of nodes
-static void rewrite_tags(lxb_dom_document_t *dom, const char *targ_name, const char *attr_name) {
+static void rewrite_tags(lxb_dom_document_t *dom, const char *tag_name, const char *attr_name) {
     lxb_dom_collection_t *collection = lxb_dom_collection_make(dom, 128);
     if (!collection) return;
 
-    lxb_status_t status = lxb_dom_elements_by_tag_name(lxb_dom_interface_element(dom->node.owner_document->body), (const lexb_char_t *)tag_name, strlen(tag_name), collection);
+    // 1. Safely cast the generic document to an HTML document
+    lxb_html_document_t *html_doc = (lxb_html_document_t *)dom->node.owner_document;
+
+    // 2. Get the body element
+    lxb_dom_element_t *body_element = lxb_dom_interface_element(html_doc->body);
+
+    // 3. Call the function with the correct argument order (collection goes second!)
+    lxb_status_t status = lxb_dom_elements_by_tag_name(
+        body_element, 
+        collection, 
+        (const lxb_char_t *)tag_name, 
+        strlen(tag_name)
+    );
 
     if (status == LXB_STATUS_OK) {
         for (size_t i = 0; i < lxb_dom_collection_length(collection); i++) {
-            lexb_dom_element_t *element = lxb_dom_interface_element(lxb_dom_collection_node(collection, i));
+            lxb_dom_element_t *element = lxb_dom_interface_element(lxb_dom_collection_node(collection, i));
 
             /*
             In a full implementation, you would extract the original url here,

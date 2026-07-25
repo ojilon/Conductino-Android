@@ -19,6 +19,9 @@ set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 set(BUILD_CURL_EXE OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) # Build libcurl as a static library
 set(HTTP_ONLY ON CACHE BOOL "" FORCE)          # Disable FTP, LDAP, etc., for now to save space
+set(CURL_USE_OPENSSL OFF CACHE BOOL "" FORCE)  # Stop searching for OpenSSL
+set(CURL_USE_LIBPSL OFF CACHE BOOL "" FORCE)   # Disable Public Suffix List (often fails on NDK)
+set(CURL_DISABLE_INSTALL ON CACHE BOOL "" FORCE) # Disables manual/docs building (fixes Perl warning)
 
 # Include the curl source tree
 add_subdirectory(third_party/curl)

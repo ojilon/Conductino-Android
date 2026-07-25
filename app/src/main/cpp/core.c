@@ -1,5 +1,5 @@
 #include <android/log.h>
-#include <cstddef>
+#include <stddef.h>
 #include <string.h>
 #include "include/aurora_core.h"
 #include <stdlib.h>

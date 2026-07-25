@@ -1,7 +1,8 @@
 /* SQLite-backed persistence for history/bookmarks/cache.
  * Requires third_party/sqlite/sqlite3.{c,h} (the amalgamation you provide). */
 #include <android/log.h>
-#include <cstddef>
+#include <stddef.h>
+#include <stddef.h>
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,14 +14,7 @@
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__)
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)
 
-//assuming you have a global or static sqlite3 *db variabel from your history/bookmarks setup
-extern sqlite3 *db;
-
-//update initialization function to include the cache table
-void aurora_init_schema() {
-    const char *sql = "CREATE TABLE IF NOT EXISTS page_cache(url TEXT PRIMARY KEY, local_path TEXT, timestamp INTEGER);";
-    sqlite3_exec(db, sql, 0, 0, 0);
-}
+static sqlite3 *g_db = NULL;
 
 //function to check if a valid cache exists (e.g less than 25 hours old).
 int aurora_cache_check(const char *url, char *out_path, size_t max_len) {
@@ -28,7 +22,7 @@ int aurora_cache_check(const char *url, char *out_path, size_t max_len) {
     sqlite3_stmt *stmt;
     int hit = 0;
 
-    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK) {
+    if (sqlite3_prepare_v2(g_db, sql, -1, &stmt, 0) == SQLITE_OK) {
         sqlite3_bind_text(stmt, 1, url, -1, SQLITE_STATIC);
 
         if (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -55,7 +49,7 @@ void aurora_cache_save(const char *url, const char *local_path) {
     const char *sql = "INSERT OR REPLACE INTO page_cache(url, local_path, timestamp) VALUES(?, ?, ?);";
     sqlite3_stmt *stmt;
 
-    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK) {
+    if (sqlite3_prepare_v2(g_db, sql, -1, &stmt, 0) == SQLITE_OK) {
         sqlite3_bind_text(stmt, 1, url, -1, SQLITE_STATIC);
         sqlite3_bind_text(stmt, 2, local_path, -1, SQLITE_STATIC);
         sqlite3_bind_int64(stmt, 3, (sqlite_int64)time(NULL));
@@ -66,8 +60,6 @@ void aurora_cache_save(const char *url, const char *local_path) {
     }
 }
 
-static sqlite3 *g_db = NULL;
-
 int aurora_storage_open(const char *app_dir) {
     char path[1024];
     snprintf(path, sizeof(path), "%s/aurora.db", app_dir ? app_dir : ".");
@@ -75,11 +67,16 @@ int aurora_storage_open(const char *app_dir) {
         LOGE("open failed: %s", sqlite3_errmsg(g_db));
         return 1;
     }
+    
+    // Combine all table creations into one schema string
     const char *schema =
         "CREATE TABLE IF NOT EXISTS history("
         " id INTEGER PRIMARY KEY, url TEXT, title TEXT, ts INTEGER);"
         "CREATE TABLE IF NOT EXISTS bookmarks("
-        " id INTEGER PRIMARY KEY, url TEXT UNIQUE, title TEXT);";
+        " id INTEGER PRIMARY KEY, url TEXT UNIQUE, title TEXT);"
+        "CREATE TABLE IF NOT EXISTS page_cache("
+        " url TEXT PRIMARY KEY, local_path TEXT, timestamp INTEGER);";
+
     char *err = NULL;
     if (sqlite3_exec(g_db, schema, NULL, NULL, &err) != SQLITE_OK) {
         LOGE("schema failed: %s", err ? err : "?");
