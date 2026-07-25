@@ -23,6 +23,11 @@ import java.io.InputStream;
  *   
  */
 public class AuroraWebViewClient extends WebViewClientCompat {
+    private final WebViewAssetLoader assetLoader;
+
+    public AuroraWebViewClient(WebViewAssetLoader assetLoader) {
+        this.assetLoader = assetLoader;
+    }
 
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
@@ -41,13 +46,13 @@ public class AuroraWebViewClient extends WebViewClientCompat {
                         //Read the file from disk
                         InputStream inputStream = new FileInputStream(file);
 
-                        //Determine MINE type (simplified for this example)
-                        String mineType = "image/png";
-                        if (uel.endstWith(".css")) mineType = "text/css";
-                        else if (url.endstWith(".js")) mineType = "application/javascript";
+                        //Determine MIME type (simplified for this example)
+                        String mimeType = "image/png";
+                        if (url.endstWith(".css")) mimeType = "text/css";
+                        else if (url.endstWith(".js")) mimeType = "application/javascript";
 
                         //Return the local file directly to the Webview
-                        return new WebResourceResponse(mineType, "UTF-8", inputStream);
+                        return new WebResourceResponse(mimeType, "UTF-8", inputStream);
                     }catch (FileNotFoundException e) {
                         LogManager.e("WebViewClientCompat", "Local file not found:" + localPath);
                     }

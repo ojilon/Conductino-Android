@@ -123,6 +123,20 @@ char* aurora_resolve_local_path(const char* url) {
         //point this to where you save the downlaod assets
         snprintf(buffer, sizeof(buffer), "%s/assets/placeholder.png", g_app_dir);
 
+        FILE *file = fopen(buffer, "r");
+        if (!file) {
+            /*
+            If missing, block and fetch it using existing network logic
+            In a complete implementation, one would extract the REAL url that lexbor parsed,
+            but for now simulate fetching the asset.
+            */
+
+            const char *real_asset_url = "https://example.com/actual-image.png";
+            aurora_fetch_to_file(real_asset_url,buffer);
+        }else {
+            fclose(file);
+        }
+        
         char *out = (char *)malloc(strlen(buffer) + 1);
         if (out) strcpy(out, buffer);
         return out;
