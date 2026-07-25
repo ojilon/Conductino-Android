@@ -1,5 +1,6 @@
 /* JNI bridge — maps the native methods declared in
  * com.aurora.browser.core.NativeCore to the pure-C core functions. */
+#include <cstddef>
 #include <jni.h>
 #include <stdlib.h>
 #include <string.h>
@@ -64,5 +65,25 @@ Java_com_aurora_browser_core_NativeCore_processRequest(JNIEnv *env, jobject thiz
 
     //Convert back to java string and free the C string
     return c_to_j(env, json_response);
+
+}
+
+JNIEXPORT jstrint JNICALL 
+Java_com_aurora_browser_core_NativeCore_getLocalResourcePath(JNIEnv *env, jobject thiz, jstring localUrl) {
+    const char *c_url = (*env)-> GetStringUTFChars(env, localUrl,  NULL);
+
+    //call a function in core.c to resolve the path
+    extern char* aurora_resolve_local_path(const char* url);
+    char *real_path = aurora_resolve_local_path(c_url);
+
+    (*env)->ReleaseStringUTFChars(env, localUrl, c_url);
+
+    jstring result = NULL;
+    if(real_path) {
+        result = c_to_j(env, real_path);
+        free(real_path);
+    }
+
+    return result;
 
 }

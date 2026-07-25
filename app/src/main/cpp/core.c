@@ -62,6 +62,11 @@ char* aurora_process_request(const char *input) {
     LOGI("Processing request: %s", input);
 
     //check cache first
+    /*
+    This logic is checking cache for every url, 
+    should be optimised to check cache for only the websites
+    and a more complex validation of cache for the 'plain text' searches
+    */
     if (aurora_cache_check(target_url, file_path, sizeof(file_path))) {
         from_cache = 1;
         success = 1;
@@ -79,6 +84,10 @@ char* aurora_process_request(const char *input) {
             aurora_cache_save(target_url, file_path);
         }
     }
+
+    //prepare the temporary file path here
+    char temp_file_path[1024];
+    snprintf(temp_file_path, sizeof(temp_file_path), "%s/temp_reponse.html", g_app_dir);
 
     //return JSON payload to Java
     //for now: returning a simple payload indicating the file is ready
@@ -99,4 +108,24 @@ char* aurora_process_request(const char *input) {
 
 const char *aurora_version_info(void) {
     return "aurora-core 0.1.0 (C11, sqlite3, libcurl)";
+}
+
+char* aurora_resolve_local_path(const char* url) {
+    /*
+    For now, since we hardcoded "aurora-local://resource/placeholder",
+    we will return a dummy path or a placeholder image path.
+    In the fully built version, this will query an SQLite table or hash the URL. 
+    */
+
+    if (strstr(url, "aurora-local://") == url) {
+        char buffer[1024];
+
+        //point this to where you save the downlaod assets
+        snprintf(buffer, sizeof(buffer), "%s/assets/placeholder.png", g_app_dir);
+
+        char *out = (char *)malloc(strlen(buffer) + 1);
+        if (out) strcpy(out, buffer);
+        return out;
+    }
+    return NULL;
 }
