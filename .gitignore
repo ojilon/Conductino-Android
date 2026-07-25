@@ -16,3 +16,5 @@ local.properties
 project_mapper.py
 project_context.txt
 .clangd
+app/src/main/cpp/third_party/curl/
+app/src/main/cpp/third_party/lexbor/

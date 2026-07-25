@@ -7,7 +7,7 @@
 #   • (future)  — see cpp/features/*/README.md for lib recommendations.
 # ─────────────────────────────────────────────────────────────
 cmake_minimum_required(VERSION 3.22.1)
-project("aurora_core")
+project(aurora_core C)
 
 set(CMAKE_C_STANDARD 11)
 

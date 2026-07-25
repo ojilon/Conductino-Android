@@ -36,7 +36,7 @@ public final class NativeCore {
     // ── native declarations ────────────────────────────────
 
     /** ask C to resolve the custom url to a real file path*/
-    public native String getLocalResuorcePath(String localUrl);
+    public native String getLocalResourcePath(String localUrl);
 
     private native int nativeBoot(String appDir);
 

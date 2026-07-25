@@ -8,7 +8,6 @@ import android.webkit.WebView;
 
 import com.aurora.browser.core.NativeCore;
 import com.aurora.browser.logging.LogManager;
-import com.aurora.browser.net.ResourceRouter;
 
 import androidx.webkit.WebViewAssetLoader;
 import androidx.webkit.WebViewClientCompat; // instead of android.webkit.WebViewClient;
@@ -48,8 +47,8 @@ public class AuroraWebViewClient extends WebViewClientCompat {
 
                         //Determine MIME type (simplified for this example)
                         String mimeType = "image/png";
-                        if (url.endstWith(".css")) mimeType = "text/css";
-                        else if (url.endstWith(".js")) mimeType = "application/javascript";
+                        if (url.endsWith(".css")) mimeType = "text/css";
+                        else if (url.endsWith(".js")) mimeType = "application/javascript";
 
                         //Return the local file directly to the Webview
                         return new WebResourceResponse(mimeType, "UTF-8", inputStream);
