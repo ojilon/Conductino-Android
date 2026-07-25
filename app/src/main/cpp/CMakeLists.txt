@@ -22,6 +22,7 @@ set(HTTP_ONLY ON CACHE BOOL "" FORCE)          # Disable FTP, LDAP, etc., for no
 
 # Include the curl source tree
 add_subdirectory(third_party/curl)
+add_subdirectory(third_party/lexbor)
 
 #Aurora core native library
 add_library(aurora_core SHARED
@@ -37,6 +38,7 @@ add_library(aurora_core SHARED
 target_include_directories(aurora_core PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/curl/include/curl
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_INCLUDE_CURRENT_DIR}/third_party/lexbor/source
         ${SQLITE_DIR}
 )
 
@@ -47,6 +49,7 @@ find_library(log-lib log)
 target_link_libraries(aurora_core 
         ${log-lib}
         libcurl
+        lexbor
         )
 
 # SQLite build tuning for mobile.

@@ -16,6 +16,7 @@ extern int  aurora_storage_open(const char *app_dir);
 extern void aurora_storage_close(void);
 extern int aurora_cache_check(const char *url, char *out_path, size_t max_len);
 extern void aurora_cache_save(const char *url, const char *localpath);
+extern int aurora_rewrite_html_file(const char *filepath);
 
 //store the app directory globally so as to write temporary files later
 char g_app_dir[1024] = {0};
@@ -62,7 +63,21 @@ char* aurora_process_request(const char *input) {
 
     //check cache first
     if (aurora_cache_check(target_url, file_path, sizeof(file_path))) {
-        //cache hit!, can skip the network completely
+        from_cache = 1;
+        success = 1;
+    }else {
+        snprintf(file_path, sizeof(file_path), "%s/cached_page.html", g_app_dir);
+
+        //Execute the fetch via libcurl
+        success = aurora_fetch_to_file(target_url, file_path);
+
+        //If successful, process the html and save it to the sqlite DB
+        if (success) {
+            //rewrite html tags for local routing
+            aurora_rewrite_html_file(file_path);
+
+            aurora_cache_save(target_url, file_path);
+        }
     }
 
     //return JSON payload to Java

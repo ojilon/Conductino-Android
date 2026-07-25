@@ -22,9 +22,8 @@ extern "C" {
 #include <limits.h>
 #include <string.h>
 
-#include "lexbor/core/def.h"
-#include "lexbor/core/types.h"
-#include "lexbor/core/lexbor.h"
+#include "def.h"
+#include "types.h"
 
 #define LEXBOR_VERSION_MAJOR 3
 #define LEXBOR_VERSION_MINOR 1

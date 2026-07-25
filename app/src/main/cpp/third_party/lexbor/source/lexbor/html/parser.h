@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#include "lexbor/html/base.h"
+#include "base.h"
 #include "lexbor/html/tree.h"
 #include "lexbor/html/interfaces/document.h"
 
