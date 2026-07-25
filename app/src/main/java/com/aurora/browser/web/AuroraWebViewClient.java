@@ -54,8 +54,9 @@ public class AuroraWebViewClient extends WebViewClientCompat {
                                     
                 }                
             }
+        }
 
-                //For all other web requests
-            return super.shouldInterceptRequest(view, request);
+        //For all other web requests
+        return super.shouldInterceptRequest(view, request);
     }
 }
