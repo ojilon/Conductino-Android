@@ -1,18 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  The Activity layout is deliberately minimal: a single full-bleed WebView.
-  All chrome (URL bar, tabs, buttons) is drawn by the HTML/CSS/JS UI states
-  loaded into this WebView, so Java can swap the entire experience per state.
--->
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/aurora_bg">
+    android:orientation="vertical"
+    android:background="#0b1020"> <!-- Matches the dark theme-->
 
-    <WebView
-        android:id="@+id/web_view"
+    <!-- Native Broswer top bar-->
+    <LinearLayout
+        android:id="@+id/native_top_bar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:background="#141a30"
+        android:gravity="center_vertical"
+        android:elevation="4dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Back button -->
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_revert"
+            android:contentDescription="Back" />
+
+        <!-- URL / Search Bar -->
+        <EditText
+                android:id="@+id/url_bar"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/omnibox_bg" 
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textColor="#e8ecfb"
+                android:hint="Search or type web address"
+                android:textColorHint="#8891b4"
+                android:singleLine="true"
+                android:imeOptions="actionGo"
+                android:inputType="textUri"
+                android:textSize="14sp" />
+
+            <!-- DevTools / Menu Button -->
+            <ImageButton
+                android:id="@+id/btn_menu"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_manage"
+                android:contentDescription="Menu" />
+        </LinearLayout>
+
+        <!-- Optional: A thin progress bar under the address bar -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:max="100"
+            android:progress="0"
+            android:visibility="gone"
+            android:progressTint="#5ee7c4" />
+
+        <!-- 2. The Web Content Area -->
+        <!-- This matches the ID your BrowserActivity.java already expects -->
+        <WebView
+            android:id="@+id/web_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+</LinearLayout>

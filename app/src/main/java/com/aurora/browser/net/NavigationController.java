@@ -1,5 +1,8 @@
 package com.aurora.browser.net;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.aurora.browser.core.NativeCore;
 import com.aurora.browser.logging.LogManager;
 import com.aurora.browser.settings.SettingsManager;
@@ -9,11 +12,10 @@ import com.aurora.browser.state.StateManager;
 /**
  * Orchestrates a single navigation:
  *   plain text  -> is it a URL or a query?
- *   URL         -> fetch document, classify, render DOCUMENT state
- *   query       -> hit search engine, parse results, render RESULTS state
- *
- * Runs off the main thread; posts state transitions back.
+ *   URL         -> trigger native WebView load
+ *   query       -> hit search engine -> trigger native WebView load
  */
+
 public class NavigationController {
 
     private static final NavigationController INSTANCE = new NavigationController();
@@ -21,21 +23,37 @@ public class NavigationController {
     private NavigationController() {}
 
     private String engineId = SettingsManager.get().defaultEngine();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public void setEngine(String id) {
         this.engineId = id;
         LogManager.i("Nav", "search engine -> " + id);
     }
 
+    /** 
+     * Parses input and routes it natively to bypass bot-protection.
+     * */
     public void handleInput(String text) {
-        NetExecutor.io(() -> {
-            //send raw text directly to the C backend
-            String jsonPayload = NativeCore.get().processRequest(text);
+        if (text == null || text.trim().isEmpty()) return;
 
-            // For now, assume C returns a DOCUMENT payload. 
-            // Later, C will return specific JSON indicating if it's an ERROR, RESULTS, or DOCUMENT.
-            StateManager.get().transitionTo(BrowserState.DOCUMENT, jsonPayload);
-        });
+        String query = text.trim();
+        String url;
+
+        //Basic Heuristic: URL vs Search
+        if (!query.contains(" ") && query.contains(".")) {
+            url = (!query.startsWith("http://") && !query.startsWith("https://")) ? "https://" + query : query;
+        }else {
+            //Route through selected search engine (for noe google as defualt)
+            url = "https://www.google.com/search?q=" + query;
+        }
+
+        LogManager.i("Nav", "Routing native navigation to: " + url);
+
+        /**
+         * Inform the stateManager to handle an EXTERNAM state, passing the URL as the payload.
+         * (add external to BrowserState enum
+         * */
+         mainHandler.post(() -> StateManager.get().transitionTo(BrowserState.EXTERNAL, url));
     }
 
     public String suggestions(String partial) {

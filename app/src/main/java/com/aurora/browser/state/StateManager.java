@@ -26,8 +26,23 @@ public class StateManager {
 
     /** Swap the UI. payloadJson is delivered to the page after it loads. */
     public void transitionTo(BrowserState state, String payloadJson) {
-        LogManager.i("StateManager", "transition " + current + " -> " + state);
+        LogManager.i("StateManager", "transition to " + current + " -> " + state);
         this.current = state;
+
+        //handle native external web navigation
+        if (state == BrowserState.EXTERNAL) {
+            /**
+             * For EXTERNAL state, payloadjson is the target URL.
+             * We clear pendingPayload so we don't leak data to external sites.*/
+            this.pendingPayload = null;
+
+            if (host != null && payloadJson != null) {
+                host.loadExternalUrl(payloadJson);
+            }
+            return;
+        }
+
+        //Handle local internal UI states
         this.pendingPayload = payloadJson;
         if (host != null) {
             host.loadUi(state.indexPath());
@@ -36,7 +51,8 @@ public class StateManager {
 
     /** Called by the JS bridge once a UI page signals it is ready. */
     public void onUiReady() {
-        if (host != null && pendingPayload != null) {
+        //Ensure we only emit paylaods to the internal UI states, never EXTERNAL
+        if (host != null && pendingPayload != null && current != BrowserState.EXTERNAL) {
             host.emit("payload", pendingPayload);
             pendingPayload = null;
         }

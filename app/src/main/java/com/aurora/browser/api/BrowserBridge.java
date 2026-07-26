@@ -32,7 +32,7 @@ public class BrowserBridge {
         StateManager.get().onUiReady();
     }
 
-    /** The URL bar submitted plain text or a URL. */
+    /** The HTML URL bar submitted plain text or a URL. */
     @JavascriptInterface
     public void submitOmnibox(String text) {
         LogManager.d("Bridge", "submitOmnibox: " + text);
@@ -46,10 +46,10 @@ public class BrowserBridge {
     }
 
     /** Open a specific result URL from the results list. */
-    //@JavascriptInterface
-    //public void openResult(String url) {
-      //  NavigationController.get().navigate(url);
-    //}
+    @JavascriptInterface
+    public void openResult(String url) {
+        NavigationController.get().handleInput(url);
+    }
 
     /** Return typeahead suggestions as JSON (frontend renders them). */
     @JavascriptInterface
