@@ -6,6 +6,8 @@ import com.aurora.browser.core.NativeCore;
 import com.aurora.browser.logging.LogManager;
 import com.aurora.browser.settings.SettingsManager;
 
+import android.util.Log;
+
 /**
  * Process-wide singleton. Loads the C backend, boots settings + logging.
  */
@@ -18,11 +20,10 @@ public class AuroraApplication extends Application {
         super.onCreate();
         instance = this;
 
-        LogManager.init(this);
+        LogManager.initializeFileLogging(this);
         LogManager.i("App", "Aurora Browser starting up");
 
         // Load settings/*.json before anything else touches config.
-        // Load settings/*.json before vanything else touches config.
         SettingsManager.get().load(this);
 
         // Bring the native (C) core online through JNI.

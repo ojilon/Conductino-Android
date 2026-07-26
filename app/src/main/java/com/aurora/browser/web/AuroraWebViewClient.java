@@ -53,11 +53,17 @@ public class AuroraWebViewClient extends WebViewClientCompat {
                         //Return the local file directly to the Webview
                         return new WebResourceResponse(mimeType, "UTF-8", inputStream);
                     }catch (FileNotFoundException e) {
-                        LogManager.e("WebViewClientCompat", "Local file not found:" + localPath);
+                        LogManager.e("WebViewClientCompat", "Local file not found:" + localPath, e);
                     }
                                     
                 }                
             }
+        }
+
+        // Let the assetLoader try to serve the file from local assets
+        WebResourceResponse assetResponse = assetLoader.shouldInterceptRequest(request.getUrl());
+        if (assetResponse != null) {
+            return assetResponse;
         }
 
         //For all other web requests
