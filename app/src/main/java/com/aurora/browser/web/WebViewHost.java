@@ -1,8 +1,11 @@
 package com.aurora.browser.web;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import androidx.webkit.WebViewAssetLoader;
 
@@ -13,21 +16,29 @@ import com.aurora.browser.logging.LogManager;
  * Owns the single WebView instance and wires up:
  *   - the asset loader (serves assets/ui/** under https://appassets.androidplatform.net/)
  *   - the JS<->Java bridge (@JavascriptInterface)
- *   - the custom WebViewClient that lets Java intercept/stream sub-resources.
- *
- * The frontend is NOT one iframe: StateManager swaps the top-level document
- * (welcome / search / results / document / devtools) by loading different
- * assets/ui/<state>/index.html into THIS webview.
+ *   - native external loading to bypass Cloudflare/CORS
  */
+
 public class WebViewHost {
 
     private final Activity activity;
     private final WebView webView;
     private BrowserBridge bridge;
+    private BrowserUiCallback uiCallback; //New callback for ui updates
+
+    //Interface to talk back to BrowserActivity's native UI
+    public interface BrowserUiCallback {
+        void onUrUpdated(String url);
+        void onProgressUpdated(int progress);
+    }
 
     public WebViewHost(Activity activity, WebView webView) {
         this.activity = activity;
         this.webView = webView;
+    }
+
+    public void setUiCallback(BrowserUiCallback callback) {
+        this.uiCallback = callback;
     }
 
     @SuppressWarnings({"SetJavaScriptEnabled"})
@@ -47,6 +58,27 @@ public class WebViewHost {
         webView.setWebViewClient(new AuroraWebViewClient(assetLoader));
         webView.setWebChromeClient(new AuroraChromeClient());
 
+        //Pass the asset loder AND the UI callback into custom clients
+        webView.setWebViewClient(new AuroraWebViewClient(assetLoader) {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                if (uiCallback != null && !url.contains("appassets.androidplatform.net")) {
+                    uiCallback.onUrUpdated(url);
+                }
+            }
+        });
+
+        webView.setWebChromeClient(new AuroraChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                super.onProgressChanged(view, newProgress);
+                if (uiCallback != null) {
+                    uiCallback.onProgressUpdated(newProgress);
+                }
+            }
+        });
+
         // Expose the API surface to every UI page.
         bridge = new BrowserBridge(this);
         webView.addJavascriptInterface(bridge, "AuroraNative");
@@ -54,10 +86,16 @@ public class WebViewHost {
         LogManager.i("WebViewHost", "WebView attached with asset loader + bridge");
     }
 
-    /** Load a specific UI state document. Called by StateManager. */
+    /** Load a specific UI state document. Called by StateManager (local HTML). */
     public void loadUi(String relativeIndexPath) {
         String url = "https://appassets.androidplatform.net/ui/" + relativeIndexPath;
         LogManager.d("WebViewHost", "loadUi -> " + url);
+        webView.post(() -> webView.loadUrl(url));
+    }
+
+    //Load an external webpage natively (Bypasses CORS/Bot checks).
+    public void loadExternalUrl(String url) {
+        LogManager.d("WebViewHost", "loadExternalUrl -> " + url);
         webView.post(() -> webView.loadUrl(url));
     }
 

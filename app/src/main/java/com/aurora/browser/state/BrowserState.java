@@ -12,7 +12,8 @@ public enum BrowserState {
     DOCUMENT  ("document/index.html"),  // rendering a single website/doc
     DEVTOOLS  ("devtools/index.html"),  // inspector / network / console
     SETTINGS  ("settings/index.html"),  // preferences UI
-    ERROR     ("error/index.html");     // offline / failed load
+    ERROR     ("error/index.html"),     // offline / failed load
+    EXTERNAL  ("");                     //Naitve external web loading
 
     private final String indexPath;
 

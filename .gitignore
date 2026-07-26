@@ -11,4 +11,10 @@ app/build/
 
 # Local configuration files (contains local SDK/NDK paths)
 local.properties
-.externalNativeBuild/
+
+
+project_mapper.py
+project_context.txt
+.clangd
+app/src/main/cpp/third_party/curl/
+app/src/main/cpp/third_party/lexbor/

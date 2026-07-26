@@ -14,22 +14,46 @@ set(CMAKE_C_STANDARD 11)
 # --- SQLite amalgamation (drop sqlite3.c + sqlite3.h in third_party/sqlite) ---
 set(SQLITE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/sqlite)
 
+#libcurl configuration
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+set(BUILD_CURL_EXE OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) # Build libcurl as a static library
+set(HTTP_ONLY ON CACHE BOOL "" FORCE)          # Disable FTP, LDAP, etc., for now to save space
+set(CURL_USE_OPENSSL OFF CACHE BOOL "" FORCE)  # Stop searching for OpenSSL
+set(CURL_USE_LIBPSL OFF CACHE BOOL "" FORCE)   # Disable Public Suffix List (often fails on NDK)
+set(CURL_DISABLE_INSTALL ON CACHE BOOL "" FORCE) # Disables manual/docs building (fixes Perl warning)
+
+# Include the curl source tree
+add_subdirectory(third_party/curl)
+add_subdirectory(third_party/lexbor)
+
+#Aurora core native library
 add_library(aurora_core SHARED
         jni_bridge.c        # JNI entry points, maps to NativeCore.java
         core.c              # boot/shutdown, app dir, config
         html_parser.c       # fast search-result extraction
         storage.c           # SQLite-backed history/bookmarks
+        network.c
         ${SQLITE_DIR}/sqlite3.c
 )
 
+#tell compiler where to find header files and libcurl's headers
 target_include_directories(aurora_core PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/curl/include/curl
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_INCLUDE_CURRENT_DIR}/third_party/lexbor/source
         ${SQLITE_DIR}
 )
 
 # Android system libs.
 find_library(log-lib log)
-target_link_libraries(aurora_core ${log-lib})
+
+#link library against Android logs and the static libcurl library
+target_link_libraries(aurora_core 
+        ${log-lib}
+        libcurl
+        lexbor
+        )
 
 # SQLite build tuning for mobile.
 target_compile_definitions(aurora_core PRIVATE

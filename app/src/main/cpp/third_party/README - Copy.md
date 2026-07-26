@@ -12,9 +12,3 @@ its sources/prebuilts in the named subfolder and wire it into `CMakeLists.txt`.
 
 > Only `sqlite/` is referenced by the current CMake build. Uncomment/add the
 > others in `CMakeLists.txt` as features come online.
-
-
-## Obtain the third party libs by downlaoding
-Some of the links
-Download curl from https://curl.se/download.html and extract to /curl
-Download lexbor from https://github.com/lexbor/lexbor/releases and extract to /lexbor

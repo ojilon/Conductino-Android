@@ -34,7 +34,13 @@ public final class NativeCore {
     }
 
     // ── native declarations ────────────────────────────────
+
+    /** ask C to resolve the custom url to a real file path*/
+    public native String getLocalResourcePath(String localUrl);
+
     private native int nativeBoot(String appDir);
+
+    public native String processRequest(String input);
 
     /** Parse engine HTML into a JSON result array, capped at 'limit'. */
     public native String parseSearchResults(String html, String selector, int limit);

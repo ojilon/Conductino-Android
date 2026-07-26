@@ -1,5 +1,9 @@
 package com.aurora.browser.net;
 
+import android.os.Handler;
+import android.os.Looper;
+
+import com.aurora.browser.core.NativeCore;
 import com.aurora.browser.logging.LogManager;
 import com.aurora.browser.settings.SettingsManager;
 import com.aurora.browser.state.BrowserState;
@@ -8,11 +12,10 @@ import com.aurora.browser.state.StateManager;
 /**
  * Orchestrates a single navigation:
  *   plain text  -> is it a URL or a query?
- *   URL         -> fetch document, classify, render DOCUMENT state
- *   query       -> hit search engine, parse results, render RESULTS state
- *
- * Runs off the main thread; posts state transitions back.
+ *   URL         -> trigger native WebView load
+ *   query       -> hit search engine -> trigger native WebView load
  */
+
 public class NavigationController {
 
     private static final NavigationController INSTANCE = new NavigationController();
@@ -20,52 +23,42 @@ public class NavigationController {
     private NavigationController() {}
 
     private String engineId = SettingsManager.get().defaultEngine();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public void setEngine(String id) {
         this.engineId = id;
         LogManager.i("Nav", "search engine -> " + id);
     }
 
+    /** 
+     * Parses input and routes it natively to bypass bot-protection.
+     * */
     public void handleInput(String text) {
-        NetExecutor.io(() -> {
-            if (UrlClassifier.looksLikeUrl(text)) {
-                navigate(UrlClassifier.normalize(text));
-            } else {
-                runSearch(text);
-            }
-        });
-    }
+        if (text == null || text.trim().isEmpty()) return;
 
-    public void navigate(String url) {
-        NetExecutor.io(() -> {
-            FetchResult res = Fetcher.get().fetchDocument(url);
-            ResponseType type = ResponseClassifier.classify(res);
-            switch (type) {
-                case HTML_DOCUMENT:
-                    StateManager.get().transitionTo(BrowserState.DOCUMENT, res.toJson());
-                    break;
-                case MEDIA:
-                    StateManager.get().transitionTo(BrowserState.DOCUMENT, res.toMediaJson());
-                    break;
-                case ERROR:
-                default:
-                    StateManager.get().transitionTo(BrowserState.ERROR, res.errorJson());
-            }
-        });
-    }
+        String query = text.trim();
+        String url;
 
-    private void runSearch(String query) {
-        int limit = SettingsManager.get().maxSearchResults();
-        SearchResultSet set = SearchEngineClient.get().search(engineId, query, limit);
-        if (set.size() == 1 && set.isDirectHit()) {
-            navigate(set.first().url);            // "gmail" -> straight to site
-        } else {
-            StateManager.get().transitionTo(BrowserState.RESULTS, set.toJson());
+        //Basic Heuristic: URL vs Search
+        if (!query.contains(" ") && query.contains(".")) {
+            url = (!query.startsWith("http://") && !query.startsWith("https://")) ? "https://" + query : query;
+        }else {
+            //Route through selected search engine (for noe google as defualt)
+            url = "https://www.google.com/search?q=" + query;
         }
+
+        LogManager.i("Nav", "Routing native navigation to: " + url);
+
+        /**
+         * Inform the stateManager to handle an EXTERNAM state, passing the URL as the payload.
+         * (add external to BrowserState enum
+         * */
+         mainHandler.post(() -> StateManager.get().transitionTo(BrowserState.EXTERNAL, url));
     }
 
     public String suggestions(String partial) {
-        return SearchEngineClient.get().suggest(engineId, partial);
+        // We will move this to C later. Leave as is for now, or return "[]" to disable temporarily.
+        return "[]";
     }
 
     public void openDevTools() {

@@ -8,6 +8,8 @@
 int  aurora_boot(const char *app_dir);   /* open DB, init state. 0 = ok */
 void aurora_shutdown(void);
 
+char* aurora_process_request(const char *input);
+
 /* Parse engine result HTML -> heap JSON array string. Caller frees.
  * 'limit' caps the number of results (browser default 300). */
 char *aurora_parse_search_results(const char *html,
