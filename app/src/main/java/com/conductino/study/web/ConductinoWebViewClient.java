@@ -1,4 +1,4 @@
-package com.aurora.browser.web;
+package com.conductino.study.web;
 
 import android.util.Log; //Added for debugging
 import android.webkit.WebResourceRequest;
@@ -6,8 +6,8 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 //import android.webkit.WebViewClient;
 
-import com.aurora.browser.core.NativeCore;
-import com.aurora.browser.logging.LogManager;
+import com.conductino.study.core.NativeCore;
+import com.conductino.study.logging.LogManager;
 
 import androidx.webkit.WebViewAssetLoader;
 import androidx.webkit.WebViewClientCompat; // instead of android.webkit.WebViewClient;
@@ -21,10 +21,10 @@ import java.io.InputStream;
  * Intercepts every resource the WebView requests.
  *   
  */
-public class AuroraWebViewClient extends WebViewClientCompat {
+public class ConductinoWebViewClient extends WebViewClientCompat {
     private final WebViewAssetLoader assetLoader;
 
-    public AuroraWebViewClient(WebViewAssetLoader assetLoader) {
+    public ConductinoWebViewClient(WebViewAssetLoader assetLoader) {
         this.assetLoader = assetLoader;
     }
 

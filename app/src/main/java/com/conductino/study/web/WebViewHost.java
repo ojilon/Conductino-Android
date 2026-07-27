@@ -1,4 +1,4 @@
-package com.aurora.browser.web;
+package com.conductino.study.web;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -9,8 +9,8 @@ import android.webkit.WebViewClient;
 
 import androidx.webkit.WebViewAssetLoader;
 
-import com.aurora.browser.api.BrowserBridge;
-import com.aurora.browser.logging.LogManager;
+import com.conductino.study.api.BrowserBridge;
+import com.conductino.study.logging.LogManager;
 
 /**
  * Owns the single WebView instance and wires up:
@@ -55,11 +55,11 @@ public class WebViewHost {
                 .addPathHandler("/", new WebViewAssetLoader.AssetsPathHandler(activity))
                 .build();
 
-        webView.setWebViewClient(new AuroraWebViewClient(assetLoader));
-        webView.setWebChromeClient(new AuroraChromeClient());
+        webView.setWebViewClient(new ConductinoWebViewClient(assetLoader));
+        webView.setWebChromeClient(new ConductinoChromeClient());
 
         //Pass the asset loder AND the UI callback into custom clients
-        webView.setWebViewClient(new AuroraWebViewClient(assetLoader) {
+        webView.setWebViewClient(new ConductinoWebViewClient(assetLoader) {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
@@ -69,7 +69,7 @@ public class WebViewHost {
             }
         });
 
-        webView.setWebChromeClient(new AuroraChromeClient() {
+        webView.setWebChromeClient(new ConductinoChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 super.onProgressChanged(view, newProgress);

@@ -6,13 +6,13 @@ plugins {
 }
 
 android {
-    namespace 'com.aurora.browser'
+    namespace 'com.conductino.study'
     compileSdk 36
 
     ndkVersion "29.0.14206865"
 
     defaultConfig {
-        applicationId 'com.aurora.browser'
+        applicationId 'com.conductino.study'
         minSdk 26
         targetSdk 34
         versionCode 1

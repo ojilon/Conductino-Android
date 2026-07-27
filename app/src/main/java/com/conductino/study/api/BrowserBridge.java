@@ -1,11 +1,11 @@
-package com.aurora.browser.api;
+package com.conductino.study.api;
 
 import android.webkit.JavascriptInterface;
 
-import com.aurora.browser.logging.LogManager;
-import com.aurora.browser.net.NavigationController;
-import com.aurora.browser.state.StateManager;
-import com.aurora.browser.web.WebViewHost;
+import com.conductino.study.logging.LogManager;
+import com.conductino.study.net.NavigationController;
+import com.conductino.study.state.StateManager;
+import com.conductino.study.web.WebViewHost;
 
 /**
  * THE contract between the frontend JS and Java. Injected as window.AuroraNative.

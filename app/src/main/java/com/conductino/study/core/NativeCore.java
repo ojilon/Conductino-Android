@@ -1,6 +1,6 @@
-package com.aurora.browser.core;
+package com.conductino.study.core;
 
-import com.aurora.browser.logging.LogManager;
+import com.conductino.study.logging.LogManager;
 
 /**
  * The single JNI gateway into the C backend (libaurora_core.so).

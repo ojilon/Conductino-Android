@@ -1,7 +1,7 @@
-package com.aurora.browser.state;
+package com.conductino.study.state;
 
-import com.aurora.browser.logging.LogManager;
-import com.aurora.browser.web.WebViewHost;
+import com.conductino.study.logging.LogManager;
+import com.conductino.study.web.WebViewHost;
 
 /**
  * Central authority that decides WHICH ui/<state> document is rendered.

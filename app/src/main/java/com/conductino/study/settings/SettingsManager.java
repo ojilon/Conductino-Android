@@ -1,8 +1,8 @@
-package com.aurora.browser.settings;
+package com.conductino.study.settings;
 
 import android.content.Context;
 
-import com.aurora.browser.logging.LogManager;
+import com.conductino.study.logging.LogManager;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

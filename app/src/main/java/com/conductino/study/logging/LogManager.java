@@ -1,4 +1,4 @@
-package com.aurora.browser.logging;
+package com.conductino.study.logging;
 
 import android.content.Context;
 import android.util.Log;
@@ -32,7 +32,7 @@ public class LogManager {
      */
     public static void initializeFileLogging(Context context) {
         try {
-            // Saves to: /Android/data/com.aurora.browser/files/logs/aurora.log
+            // Saves to: /Android/data/com.conductino.study/files/logs/aurora.log
             File logDir = new File(context.getExternalFilesDir(null), "logs");
             if (!logDir.exists()) {
                 logDir.mkdirs();

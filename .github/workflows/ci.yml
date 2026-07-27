@@ -1,10 +1,11 @@
-name: Aurora Browser CI/CD
+name: Conductino Study CI
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: ["main", "master"]
+
   pull_request:
-    branches: [ "main", "master" ]
+    branches: ["main", "master"]
 
 jobs:
   build-and-test:
@@ -14,32 +15,28 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          submodules: true # Ensures any git submodules are pulled
+          submodules: true
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '17' # Matches compileOptions in build.gradle
+          distribution: "zulu"
+          java-version: "17"
 
-      - name: Setup Gradle
+      - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Grant execute permission for the Gradle wrapper (crucial for Linux runners)
       - name: Make Gradle Wrapper Executable
         run: chmod +x gradlew
 
-      # 1. Run local Unit Tests (Robolectric + JUnit)
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest
 
-      # 2. Build the Debug and Release APKs
-      - name: Build APKs
-        run: ./gradlew assembleDebug assembleRelease
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
 
-      # 3. Upload the build artifacts (APKs) so you can download them from GitHub
-      - name: Upload Build Artifacts
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: aurora-apks
-          path: app/build/outputs/apk/**/*.apk
+          name: conductino-debug-apk
+          path: app/build/outputs/apk/debug/*.apk

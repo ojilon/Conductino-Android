@@ -1,4 +1,4 @@
-package com.aurora.browser.net;
+package com.conductino.study.net;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

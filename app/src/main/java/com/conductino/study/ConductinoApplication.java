@@ -1,19 +1,19 @@
-package com.aurora.browser;
+package com.conductino.study;
 
 import android.app.Application;
 
-import com.aurora.browser.core.NativeCore;
-import com.aurora.browser.logging.LogManager;
-import com.aurora.browser.settings.SettingsManager;
+import com.conductino.study.core.NativeCore;
+import com.conductino.study.logging.LogManager;
+import com.conductino.study.settings.SettingsManager;
 
 import android.util.Log;
 
 /**
  * Process-wide singleton. Loads the C backend, boots settings + logging.
  */
-public class AuroraApplication extends Application {
+public class ConductinoApplication extends Application {
 
-    private static AuroraApplication instance;
+    private static ConductinoApplication instance;
 
     @Override
     public void onCreate() {
@@ -21,7 +21,7 @@ public class AuroraApplication extends Application {
         instance = this;
 
         LogManager.initializeFileLogging(this);
-        LogManager.i("App", "Aurora Browser starting up");
+        LogManager.i("App", "Conductino Study starting up");
 
         // Load settings/*.json before anything else touches config.
         SettingsManager.get().load(this);
@@ -30,7 +30,7 @@ public class AuroraApplication extends Application {
         NativeCore.get().boot(getFilesDir().getAbsolutePath());
     }
 
-    public static AuroraApplication get() {
+    public static ConductinoApplication get() {
         return instance;
     }
 }

@@ -1,5 +1,5 @@
 /* JNI bridge — maps the native methods declared in
- * com.aurora.browser.core.NativeCore to the pure-C core functions. */
+ * com.conductino.study.core.NativeCore to the pure-C core functions. */
 #include <stddef.h>
 #include <jni.h>
 #include <stdlib.h>

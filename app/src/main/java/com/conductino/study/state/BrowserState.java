@@ -1,4 +1,4 @@
-package com.aurora.browser.state;
+package com.conductino.study.state;
 
 /**
  * Every top-level UI the browser can show. Each maps to a folder under

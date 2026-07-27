@@ -1,13 +1,13 @@
-package com.aurora.browser.net;
+package com.conductino.study.net;
 
 import android.os.Handler;
 import android.os.Looper;
 
-import com.aurora.browser.core.NativeCore;
-import com.aurora.browser.logging.LogManager;
-import com.aurora.browser.settings.SettingsManager;
-import com.aurora.browser.state.BrowserState;
-import com.aurora.browser.state.StateManager;
+import com.conductino.study.core.NativeCore;
+import com.conductino.study.logging.LogManager;
+import com.conductino.study.settings.SettingsManager;
+import com.conductino.study.state.BrowserState;
+import com.conductino.study.state.StateManager;
 
 /**
  * Orchestrates a single navigation:

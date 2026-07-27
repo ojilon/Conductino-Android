@@ -18,5 +18,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AuroraBrowser"
+rootProject.name = "ConductinoStudy"
 include ":app"

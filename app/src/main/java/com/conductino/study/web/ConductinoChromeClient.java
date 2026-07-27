@@ -1,15 +1,15 @@
-package com.aurora.browser.web;
+package com.conductino.study.web;
 
 import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
 
-import com.aurora.browser.logging.LogManager;
+import com.conductino.study.logging.LogManager;
 
 /**
  * Surfaces JS console output into LogManager so the DevTools UI state can
  * mirror it, and reports load progress back to whatever UI is active.
  */
-public class AuroraChromeClient extends WebChromeClient {
+public class ConductinoChromeClient extends WebChromeClient {
 
     @Override
     public boolean onConsoleMessage(ConsoleMessage cm) {

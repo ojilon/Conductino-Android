@@ -1,4 +1,4 @@
-package com.aurora.browser;
+package com.conductino.study;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;

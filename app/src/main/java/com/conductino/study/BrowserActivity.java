@@ -1,4 +1,4 @@
-package com.aurora.browser;
+package com.conductino.study;
 
 import android.Manifest;
 import android.content.Context;
@@ -19,11 +19,11 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import com.aurora.browser.logging.LogManager;
-import com.aurora.browser.state.BrowserState;
-import com.aurora.browser.state.StateManager;
-import com.aurora.browser.web.WebViewHost;
-import com.aurora.browser.net.NavigationController;
+import com.conductino.study.logging.LogManager;
+import com.conductino.study.state.BrowserState;
+import com.conductino.study.state.StateManager;
+import com.conductino.study.web.WebViewHost;
+import com.conductino.study.net.NavigationController;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -10,11 +10,11 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
 
     <application
-        android:name=".AuroraApplication"
+        android:name=".ConductinoApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.Aurora"
+        android:theme="@style/Theme.ConductinoStudy"
         android:usesCleartextTraffic="false"
         android:hardwareAccelerated="true"
         android:testOnly="false"

@@ -1,14 +1,17 @@
-package com.aurora.browser;
+package com.conductino.study;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
+
 import java.io.InputStream;
 
 @RunWith(RobolectricTestRunner.class)
-public class AuroraApplicationTest {
+@Config(application = TestConductinoApplication.class)
+public class ConductinoApplicationTest {
 
     @Test
     public void testSettingsJsonExistsAndIsReadable() throws Exception {
