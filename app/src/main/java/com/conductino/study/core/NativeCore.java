@@ -17,9 +17,12 @@ public final class NativeCore {
     private static final NativeCore INSTANCE = new NativeCore();
     public static NativeCore get() { return INSTANCE; }
 
+    private static boolean nativeAvailable = false;
+
     static {
         try {
             System.loadLibrary("aurora_core");
+            nativeAvailable = true;
         } catch (Throwable t) {
             LogManager.e("NativeCore", "native lib load failed", t);
         }
@@ -29,6 +32,10 @@ public final class NativeCore {
 
     /** Boot the C runtime, open the SQLite DB in appDir. */
     public void boot(String appDir) {
+        if (!nativeAvailable) {
+            LogManager.i("NativeCore", "Native backend unvailable; skipping boot");
+            return;
+        }
         int rc = nativeBoot(appDir);
         LogManager.i("NativeCore", "nativeBoot rc=" + rc);
     }
