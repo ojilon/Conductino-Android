@@ -15,8 +15,9 @@ android {
         applicationId 'com.conductino.study'
         minSdk 26
         targetSdk 34
-        versionCode 1
-        versionName "0.0.1"
+
+        versionCode project.property("app.versionCode").toInteger()
+        versionName project.property("app.versionName")
 
         // Instrumentation test runner
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
