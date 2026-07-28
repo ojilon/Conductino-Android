@@ -24,3 +24,8 @@ app/src/main/cpp/third_party/
 
 #generated release artifacts
 release/
+scripts/config.json
+
+release.yml
+*.jks
+*.keystore
