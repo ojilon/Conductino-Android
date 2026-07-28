@@ -18,3 +18,9 @@ project_context.txt
 .clangd
 
 app/src/main/cpp/third_party/
+
+#python virtual environment
+.venv/
+
+#generated release artifacts
+release/
