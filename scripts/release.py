@@ -73,29 +73,19 @@ def publish_github_release(version, release_type):
     print(f"Successfully published {tag} to GitHub!")
 
 
-def run_command(command):
-    print()
-    print("="*60)
-    print("Running:", " ".join(command))
-    print("="*60)
-
-    result = subprocess.run(command, cwd=ROOT, shell=True)
-    if result.returncode != 0:
-        raise RuntimeError(f"Command failed with exit code {result.returncode}")
-
 def main():
     if len(sys.argv) != 4:
         print("Usage:")
-        print(" python scripts/release.py VERSION_TYPE -l(system gradle/ leave blank to use gradlew)")
+        print(" python scripts/release.py VERSION_TYPE -l(system gradle / leave blank to use gradlew)")
         print()
         print("Examples:")
-        print(" python scripts/release.py 0.0.3 pre-release")
-        print(" python scripts/release.py 1.0.0 release")
+        print(" python scripts/release.py 0.0.3 pre-release -l(write '-l' to force using your local gradle, not the repo's gradlew)")
+        print(" python scripts/release.py 1.0.0 release  -l(or leave blank)")
         sys.exit(1)
 
     version = sys.argv[1]
     release_type = sys.argv[2]
-    gradle_kind = sys.argv[3]
+    gradle_kind = sys.argv[3] #fetch the '-l'
 
     print()
     print("Conductino Study Release Tool")
