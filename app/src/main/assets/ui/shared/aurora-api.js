@@ -1,5 +1,5 @@
 /*
- * Aurora frontend <-> Java bridge helper.
+ * Conductino_Study frontend <-> Java bridge helper.
  * Every UI state includes this. It keeps the JS thin: collect input, call
  * Java (window.AuroraNative), and render whatever Java emits back.
  */
