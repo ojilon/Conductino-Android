@@ -4,12 +4,11 @@ import android.app.Application;
 
 import com.conductino.study.core.NativeCore;
 import com.conductino.study.downloads.DownloadStore;
+import com.conductino.study.library.BookmarkStore;
+import com.conductino.study.library.HistoryStore;
 import com.conductino.study.logging.LogManager;
 import com.conductino.study.settings.SettingsManager;
 
-/**
- * Process-wide singleton. Loads settings, downloads store, native core.
- */
 public class ConductinoApplication extends Application {
 
     private static ConductinoApplication instance;
@@ -24,6 +23,8 @@ public class ConductinoApplication extends Application {
 
         SettingsManager.get().load(this);
         DownloadStore.get().init(this);
+        HistoryStore.get().init(this);
+        BookmarkStore.get().init(this);
 
         NativeCore.get().boot(getFilesDir().getAbsolutePath());
     }
