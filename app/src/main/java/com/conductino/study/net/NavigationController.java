@@ -22,7 +22,6 @@ public class NavigationController {
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    /** Called from Settings UI / bridge when the user picks an engine. */
     public void setEngine(String id) {
         SettingsManager.get().setDefaultEngine(id);
         LogManager.i("Nav", "search engine -> " + SettingsManager.get().defaultEngine());
@@ -32,9 +31,6 @@ public class NavigationController {
         return SettingsManager.get().defaultEngine();
     }
 
-    /**
-     * Parses input and routes to EXTERNAL (remote) or leaves local states alone.
-     */
     public void handleInput(String text) {
         if (text == null || text.trim().isEmpty()) return;
 
@@ -56,16 +52,13 @@ public class NavigationController {
     private static boolean looksLikeUrl(String q) {
         if (q.contains(" ")) return false;
         if (q.startsWith("http://") || q.startsWith("https://")) return true;
-        // host.tld or localhost — simple heuristic
         return q.contains(".") || q.startsWith("localhost");
     }
 
     public String suggestions(String partial) {
-        (voidUnused(partial));
+        // Typeahead later via engine suggestUrl
         return "[]";
     }
-
-    private static String voidUnused(String s) { return s; }
 
     public void openDevTools() {
         StateManager.get().transitionTo(BrowserState.DEVTOOLS, null);
