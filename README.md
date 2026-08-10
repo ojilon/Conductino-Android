@@ -1,4 +1,4 @@
-# Conductino / Aurora — Android browser foundation
+# Conductino Study
 
 A minimal, state-driven Android browser skeleton used as a foundation for features and experiments. The app runs a single WebView that loads small HTML/CSS/JS UIs from assets for each application state, while heavier logic (search parsing, indexing, extraction) lives in the native backend (C/C++ via JNI).
 
