@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Downloads</title>
+  <link rel="stylesheet" href="../shared/theme.css" />
+  <style>
+    .wrap { padding: 20px; max-width: 640px; margin: 0 auto; }
+    h1 { font-size: 22px; margin: 0 0 8px; }
+    .sub { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
+    .item {
+      padding: 12px 14px; background: var(--bg-elev); border: 1px solid #26305a;
+      border-radius: 12px; margin-bottom: 8px;
+    }
+    .name { font-weight: 600; font-size: 14px; word-break: break-all; }
+    .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .empty { color: var(--muted); font-size: 14px; padding: 24px 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Downloads</h1>
+    <p class="sub">Internal store (app private). Export to phone Downloads comes later.</p>
+    <div id="list" class="empty">No downloads yet.</div>
+  </div>
+  <script src="../shared/aurora-api.js"></script>
+  <script>
+    Aurora.ready('downloads');
+
+    function fmtBytes(n) {
+      if (!n || n < 1024) return (n || 0) + ' B';
+      if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+      return (n / 1048576).toFixed(1) + ' MB';
+    }
+
+    function render(items) {
+      const el = document.getElementById('list');
+      if (!items || !items.length) {
+        el.className = 'empty';
+        el.textContent = 'No downloads yet.';
+        return;
+      }
+      el.className = '';
+      el.innerHTML = items.map((r) =>
+        '<div class="item"><div class="name">' +
+        (r.fileName || 'file') +
+        '</div><div class="meta">' +
+        fmtBytes(r.bytes) + ' · ' +
+        (r.mimeType || '') +
+        '</div></div>'
+      ).join('');
+    }
+
+    Aurora.on('payload', (d) => {
+      const items = Array.isArray(d) ? d : (d && d.items) ? d.items : [];
+      render(items);
+    });
+  </script>
+</body>
+</html>

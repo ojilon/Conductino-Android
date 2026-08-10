@@ -2,18 +2,18 @@ package com.conductino.study.state;
 
 /**
  * Every top-level UI the browser can show. Each maps to a folder under
- * assets/ui/<dir>/ containing its own index.html + style.css + logic.js.
- * The frontend is state-driven: Java swaps the whole document per state.
+ * assets/ui/<dir>/ containing its own index.html (+ optional css/js).
  */
 public enum BrowserState {
-    WELCOME   ("welcome/index.html"),   // launch / new tab
-    SEARCH    ("search/index.html"),    // URL bar focused + engine picker
-    RESULTS   ("results/index.html"),   // many search results (limit 300)
-    DOCUMENT  ("document/index.html"),  // rendering a single website/doc
-    DEVTOOLS  ("devtools/index.html"),  // inspector / network / console
-    SETTINGS  ("settings/index.html"),  // preferences UI
-    ERROR     ("error/index.html"),     // offline / failed load
-    EXTERNAL  ("");                     //Naitve external web loading
+    WELCOME   ("welcome/index.html"),
+    SEARCH    ("search/index.html"),
+    RESULTS   ("results/index.html"),
+    DOCUMENT  ("document/index.html"),
+    DEVTOOLS  ("devtools/index.html"),
+    SETTINGS  ("settings/index.html"),
+    DOWNLOADS ("downloads/index.html"),
+    ERROR     ("error/index.html"),
+    EXTERNAL  ("");   // remote WebView load; no local index
 
     private final String indexPath;
 
