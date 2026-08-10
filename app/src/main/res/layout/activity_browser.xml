@@ -1,76 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#0b1020"> <!-- Matches the dark theme-->
 
-    <!-- Native Broswer top bar-->
-    <LinearLayout
-        android:id="@+id/native_top_bar"
+    <!-- Main content container -->
+
+    <LinearLayout 
+        android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp"
-        android:background="#141a30"
-        android:gravity="center_vertical"
-        android:elevation="4dp">
+        android:layout_height="match_parent"
+        android:background="#0b1020">
 
-        <!-- Back button -->
-        <ImageButton
-            android:id="@+id/btn_back"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_revert"
-            android:contentDescription="Back" />
+        <!-- Native Top Navugation Bar-->
+        <LinearLayout
+            android:id="@+id/native_top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:background="#141a30"
+            android:gravity="center_vertical"
+            android:elevation="4dp">
 
-        <!-- URL / Search Bar -->
-        <EditText
-                android:id="@+id/url_bar"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/omnibox_bg" 
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:textColor="#e8ecfb"
-                android:hint="Search or type web address"
-                android:textColorHint="#8891b4"
-                android:singleLine="true"
-                android:imeOptions="actionGo"
-                android:inputType="textUri"
-                android:textSize="14sp" />
-
-            <!-- DevTools / Menu Button -->
+            <!-- Home button -->
             <ImageButton
-                android:id="@+id/btn_menu"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:id="@+id/btn_home"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_manage"
-                android:contentDescription="Menu" />
-        </LinearLayout>
+                android:src="@android:drawable/ic_menu_compass"
+                android:contentDescription="Home" />
 
-        <!-- Optional: A thin progress bar under the address bar -->
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            style="?android:attr/progressBarStyleHorizontal"
+            <!-- 'Add Tab' button -->
+            <ImageButton 
+                android:id="@+id/btn_add_tab"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="4dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_input_add"
+                android:contentDescription="New Tab" />
+
+            <!-- URL / Search Bar; Dynamic and resizable-->
+            <EditText
+                    android:id="@+id/url_bar"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/omnibox_bg" 
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textColor="#e8ecfb"
+                    android:hint="Search or type web address"
+                    android:textColorHint="#8891b4"
+                    android:singleLine="true"
+                    android:imeOptions="actionGo"
+                    android:inputType="textUri"
+                    android:textSize="14sp" />
+
+                <!-- Three-Dot Menu Button -->
+                <ImageButton
+                    android:id="@+id/btn_menu"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_more"
+                    android:contentDescription="More Options" />
+            </LinearLayout>
+
+            <!-- A thin progress bar under the address bar -->
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:max="100"
+                android:progress="0"
+                android:visibility="gone"
+                android:progressTint="#5ee7c4" />
+
+            <!-- 2. The Web Content Area -->
+            <!-- This matches the ID your BrowserActivity.java already expects -->
+            <WebView
+                android:id="@+id/web_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <!-- Right side Drawer Container (Dynamic Options List) -->
+    <LinearLayout 
+        android:id="@+id/side_drawer"
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:background="#141a30"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView 
+            android:id="@+id/drawable_header"
             android:layout_width="match_parent"
-            android:layout_height="3dp"
-            android:max="100"
-            android:progress="0"
-            android:visibility="gone"
-            android:progressTint="#5ee7c4" />
+            android:layout_height="wrap_content"
+            android:text="Browser Options"
+            android:textColor="#5ee7c4"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingBottom="12dp" />
 
-        <!-- 2. The Web Content Area -->
-        <!-- This matches the ID your BrowserActivity.java already expects -->
-        <WebView
-            android:id="@+id/web_view"
+        <View 
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_height="1dp"
+            android:background="#26305a"
+            android:layout_marginBottom="12dp" />
 
-</LinearLayout>
+        <!-- Container where menu options will be dynamically injected based on UI state -->
+        <LinearLayout 
+            android:id="@+id/drawer_options_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </LinearLayout>
+
+</androidx.drawerlayout.widget.DrawerLayout>

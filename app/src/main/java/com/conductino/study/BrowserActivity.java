@@ -3,14 +3,18 @@ package com.conductino.study;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -18,6 +22,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.conductino.study.logging.LogManager;
 import com.conductino.study.state.BrowserState;
@@ -45,12 +51,15 @@ public class BrowserActivity extends AppCompatActivity {
 
     private WebViewHost host;
     private WebView webView;
-
-    //Native UI Elements
     private EditText urlBar;
-    private ImageButton btnBack;
-    private ImageButton btnMenu;
     private ProgressBar progressBar;
+
+    // New UI Elements
+    private DrawerLayout drawerLayout;
+    private ImageButton btnHome;
+    private ImageButton btnAddTab;
+    private ImageButton btnMenu;
+    private LinearLayout drawerOptionsContainer;
 
     // Asynchronous launcher that handles the native permission dialog popup
     private final ActivityResultLauncher<String[]> requestPermissionLauncher =
@@ -80,11 +89,14 @@ public class BrowserActivity extends AppCompatActivity {
         setContentView(R.layout.activity_browser);
 
         //Bind all the UI elements (Original + New Native Chrome)
+        drawerLayout = findViewById(R.id.drawer_layout);
         webView = findViewById(R.id.web_view);
         urlBar = findViewById(R.id.url_bar);
-        btnBack = findViewById(R.id.btn_back);
+        btnHome = findViewById(R.id.btn_home);
+        btnAddTab = findViewById(R.id.btn_add_tab);
         btnMenu = findViewById(R.id.btn_menu);
         progressBar = findViewById(R.id.progress_bar);
+        drawerOptionsContainer = findViewById(R.id.drawer_options_container);
 
         //Setup listeners for the new native UI
         setupNativeUI();
@@ -99,7 +111,7 @@ public class BrowserActivity extends AppCompatActivity {
     }
 
     private void setupNativeUI() {
-        //Listen for the "Go" / "Enter" key on the soft keyboard
+        //Listen for the "Go" / "Enter" key on the soft keyboard (Omnibox Setup)
         urlBar.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_GO || (event != null && event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
                 String input = urlBar.getText().toString().trim();
@@ -117,17 +129,72 @@ public class BrowserActivity extends AppCompatActivity {
             return false;
         });
 
-        //Wire up the Native Back button
-        btnBack.setOnClickListener(v -> {
-            LogManager.i("Activity", "Native back button clicked");
-            onBackPressed();
+        //Back button -> transition back to Welcome State
+        btnHome.setOnClickListener(v -> {
+            LogManager.i("Activity", "Home button clicked");
+            StateManager.get().transitionTo(BrowserState.WELCOME, null);
         });
 
-        //Menu button
+        // Add tab Button
+        btnAddTab.setOnClickListener(v -> {
+            LogManager.i("Activity", "Add tab button clicked");
+            Toast.makeText(this, "Tabs feature ready!", Toast.LENGTH_SHORT).show();
+        });
+
+        //Menu button -> Populate dynamic options and open drawer
         btnMenu.setOnClickListener(v -> {
             LogManager.i("Activity", "Menu button clicked");
-            // StateManager.get().transitionTo(BrowserState.SETTINGS, null);
+            populateSidebarOptions();
+            drawerLayout.openDrawer(GravityCompat.END);
         });
+    }
+
+    private void populateSidebarOptions() {
+        // Clear old options to prevent duplicates
+        drawerOptionsContainer.removeAllViews();
+        BrowserState currentState = StateManager.get().current();
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins(0, 0, 0, 16);
+
+        // Dynamically add options based on current browser state
+        if (currentState == BrowserState.WELCOME) {
+            Button settingsBtn = createSidebarButton("Settings", params);
+            settingsBtn.setOnClickListener(v -> {
+                drawerLayout.closeDrawer(GravityCompat.END);
+                StateManager.get().transitionTo(BrowserState.SETTINGS, null);
+            });
+            drawerOptionsContainer.addView(settingsBtn);
+        }else {
+            Button refreshBtn = createSidebarButton("Refresh Page", params);
+            refreshBtn.setOnClickListener(v -> {
+                drawerLayout.closeDrawer(GravityCompat.END);
+                if (webView != null) webView.reload();
+            });
+            drawerOptionsContainer.addView(refreshBtn);
+
+            Button documentBtn = createSidebarButton("Render Mode", params);
+            documentBtn.setOnClickListener(v -> {
+                drawerLayout.closeDrawer(GravityCompat.END);
+                LogManager.i("Activity", "Reader mode framework triggered");
+                //Future C++ backend document rendering all go here
+            });
+            drawerOptionsContainer.addView(documentBtn);
+        }
+    }
+
+    // Helper to generate programmatic sidebar buttons
+    private Button createSidebarButton(String text, LinearLayout.LayoutParams params) {
+        Button btn = new Button(this);
+        btn.setText(text);
+        btn.setLayoutParams(params);
+        btn.setTextColor(Color.parseColor("#ebdbb2"));
+        btn.setBackgroundColor(Color.parseColor("#3c3836"));
+        btn.setAllCaps(false);
+        return btn;
     }
 
     // Safely kicks off the UI and core engines once permissions are clear
@@ -198,7 +265,10 @@ public class BrowserActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (host != null && !host.goBack()) {
+        //Intercept back press to close the sidebar of it's currently open
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.END)) {
+            drawerLayout.closeDrawer(GravityCompat.END);
+        }else if (host != null && !host.goBack()) {
             super.onBackPressed();
         }
     }
