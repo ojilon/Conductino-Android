@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────
-// :app module — the Android application + JNI bridge to the C core.
+// :app module — Android application + JNI bridge to backend/
 // ─────────────────────────────────────────────────────────────
 plugins {
     id 'com.android.application'
@@ -19,11 +19,9 @@ android {
         versionCode project.property("app.versionCode").toInteger()
         versionName project.property("app.versionName")
 
-        // Instrumentation test runner
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        // Native ABIs — read from gradle.properties
-        ndk { 
+        ndk {
             def abiProperty = project.findProperty("aurora.abiFilters") as String
             if (abiProperty != null) {
                 abiFilters.addAll(abiProperty.split(",").collect { it.trim() })
@@ -32,17 +30,19 @@ android {
 
         externalNativeBuild {
             cmake {
-                // Pass flags to the C core build. (Note: -std=c11 is for C, use c++ flags if using C++)
+                // C11 for existing sources; switch to c++23 when first .cpp lands
                 cppFlags "-std=c11"
                 arguments "-DANDROID_STL=c++_shared"
+                // Enable native build only when third_party is present:
+                // arguments "-DBUILD_AURORA_CORE=ON", "-DANDROID_STL=c++_shared"
             }
         }
     }
 
-    // JNI / C backend build entry point.
+    // Native backend lives at repo root (not under app/)
     externalNativeBuild {
         cmake {
-            path file("src/main/cpp/CMakeLists.txt")
+            path file("../backend/CMakeLists.txt")
             version "3.22.1"
         }
     }
@@ -62,13 +62,10 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    // The per-state HTML/CSS/JS UIs live in src/main/assets/ui/**
-    // and are served to the WebView via a virtual https://appassets/ origin.
     aaptOptions {
         noCompress 'db', 'wasm'
     }
 
-    // Test configuration
     testOptions {
         unitTests {
             includeAndroidResources = true
@@ -79,30 +76,18 @@ android {
 }
 
 dependencies {
-    // AndroidX core — WebView plumbing, lifecycle.
     implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.webkit:webkit:1.11.0'           // WebViewAssetLoader, WebMessage
+    implementation 'androidx.webkit:webkit:1.11.0'
     implementation 'androidx.lifecycle:lifecycle-runtime:2.8.4'
-
-    // JSON config parsing (settings/*.json).
     implementation 'com.google.code.gson:gson:2.11.0'
-
-    // OkHttp — network fetch layer that decides download-vs-stream.
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
 
-    // ─────────────────────────────────────────────────────────────
-    // Test Dependencies (Unit Tests)
-    // ─────────────────────────────────────────────────────────────
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.robolectric:robolectric:4.12.1'
     testImplementation 'androidx.test:core:1.5.0'
     testImplementation 'androidx.test.ext:junit:1.1.5'
 
-    // ─────────────────────────────────────────────────────────────
-    // Instrumented Test Dependencies (Android Device/Emulator Tests)
-    // ─────────────────────────────────────────────────────────────
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'

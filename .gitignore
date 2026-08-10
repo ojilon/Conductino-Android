@@ -5,6 +5,8 @@ app/build/
 
 # C++ / JNI build artifacts
 .cxx/
+app/.cxx/
+backend/.cxx/
 *.so
 *.dll
 *.dylib
@@ -12,17 +14,19 @@ app/build/
 # Local configuration files (contains local SDK/NDK paths)
 local.properties
 
-
 project_mapper.py
 project_context.txt
 .clangd
 
+# External native libraries (place under backend/third_party locally)
+backend/third_party/*
+!backend/third_party/.gitkeep
 app/src/main/cpp/third_party/
 
-#python virtual environment
+# python virtual environment
 .venv/
 
-#generated release artifacts
+# generated release artifacts
 release/
 scripts/config.json
 
