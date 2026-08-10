@@ -1,78 +1,50 @@
 # Conductino – Foundation Map
 
-Keep the chrome stable. Prefer new modules and short stubs over rewriting the shell.
+Chrome stays stable. New features land as modules + short guides.
 
 ---
 
-## 1. Layout — in place
+## Implemented (v0)
 
-DrawerLayout → top bar (Home | New Tab | Omnibox | Menu) + progress + WebView + end drawer.
-
----
-
-## 2. Tabs — **IMPLEMENTED (v0)**
-
-`tabs/TabManager`, `TabSession`. Guide: `tabs/README.md`.
-
----
-
-## 3. Search engines — **IMPLEMENTED (v0)**
-
-`SettingsManager.buildSearchUrl`, Settings picker, SharedPreferences. Guide: `settings/README.md`.
+| § | Topic | Where |
+|---|--------|--------|
+| 1 | Layout | `activity_browser.xml` |
+| 2 | Tabs | `tabs/TabManager`, `tabs/README.md` |
+| 3 | Search engines | `SettingsManager`, `settings/README.md` |
+| 4 | Sidebar | `BrowserActivity.populateSidebarOptions` |
+| 5 | Downloads | `downloads/DownloadStore`, UI `assets/ui/downloads/` |
+| 6 | History & bookmarks | `library/*`, UI `history/` + `bookmarks/` |
+| 7 | Page content | `content/PageContentHelper`, reader `assets/ui/document/` |
+| 8 | C++ layout | `backend/` |
+| 9 | Themes | `theme.css`, `colors.xml`, `docs/THEMES.md` |
 
 ---
 
-## 4. Sidebar — **IMPLEMENTED (v0)**
+## §7 Page content — details
 
-Chrome states: New Tab, History, Bookmarks, Downloads, Settings.  
-Page states: Refresh, Find in page, Bookmark, History, Downloads, Reader.
-
----
-
-## 5. Downloads — **IMPLEMENTED (v0)**
-
-`downloads/DownloadStore`, WebView download listener, `assets/ui/downloads/`. Guide: `downloads/README.md`.
+- **Find in page:** dialog → `PageContentHelper.findInPage` / `clearFind`
+- **Reader:** extract `document.body.innerText` → `BrowserState.DOCUMENT` with JSON `{title,url,text}`
+- Guide: `content/README.md` (Readability, selection, AI, C++ next)
 
 ---
 
-## 6. Bookmarks & history — **IMPLEMENTED (v0)**
+## §9 Themes — details
 
-| Piece | Location |
-|-------|----------|
-| History | `library/HistoryStore.java` → `filesDir/history.json` |
-| Bookmarks | `library/BookmarkStore.java` → `filesDir/bookmarks.json` |
-| Guide | `library/README.md` |
-| UI | `assets/ui/history/`, `assets/ui/bookmarks/` |
-| States | `BrowserState.HISTORY`, `BOOKMARKS` |
-
-**Behaviour**
-
-- History: written on non-local URL updates (max 500, consecutive duplicates collapsed).
-- Bookmark: sidebar on a page → `BookmarkStore.add(url, title)`.
-- List UIs open from sidebar; tap a row → `Aurora.open(url)`.
-
-**Extend:** folders, search, native SQLite mirror via `NativeCore.addHistory`.
+- HTML tokens: `assets/ui/shared/theme.css`
+- Native: `res/values/colors.xml`, `themes.xml`
+- Guide: `docs/THEMES.md` — keep hex values in sync
 
 ---
 
-## 7. Page content interaction
+## Extend next (your roadmap)
 
-Find in page, extract text, reader mode, AI — next step.
-
----
-
-## 8. C++ — **MOVED** to `backend/`
-
----
-
-## 9. Themes
-
-`theme.css` + `res/values` colors/themes.
+1. Tab switcher UI + persistence
+2. Download export to public MediaStore
+3. Find bar with prev/next
+4. Readability.js or C++ article extract
+5. Theme picker in Settings
+6. AI summarise harness on extracted text
 
 ---
 
-## 10–11. Stable APIs & checklist
-
-Stable: layout IDs, StateManager, TabManager, SettingsManager engines, DownloadStore, HistoryStore, BookmarkStore, Aurora bridge.
-
-*Last updated: §6 done. Next: §7 content interaction, then §9 themes.*
+*Foundation pass complete on branch `front_end`.*
