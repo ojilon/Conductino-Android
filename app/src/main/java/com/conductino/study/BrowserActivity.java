@@ -27,6 +27,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.conductino.study.logging.LogManager;
 import com.conductino.study.state.BrowserState;
 import com.conductino.study.state.StateManager;
+import com.conductino.study.tabs.TabManager;
+import com.conductino.study.tabs.TabSession;
 import com.conductino.study.web.WebViewHost;
 import com.conductino.study.net.NavigationController;
 
@@ -35,18 +37,7 @@ import java.util.List;
 
 /**
  * Single Activity that hosts the WebView chrome + content area.
- * Delegates real work to specialized packages:
- *
- *   web/       -> WebView + JS bridge
- *   state/     -> which assets/ui/<state> to show
- *   net/       -> navigation / download decisions
- *   api/       -> JS <-> Java contract
- *   core/      -> JNI into C++ backend (future tabs, storage, etc.)
- *   settings/  -> settings.json + search engines
- *   logging/   -> LogManager
- *
- * Tabs, bookmarks, downloads store, content extraction, etc. are
- * intentionally left as short stubs + comments so the skeleton stays stable.
+ * Delegates real work to specialized packages (tabs/, web/, state/, net/, …).
  */
 public class BrowserActivity extends AppCompatActivity {
 
@@ -104,7 +95,6 @@ public class BrowserActivity extends AppCompatActivity {
     }
 
     private void setupNativeUI() {
-        // Omnibox: Enter / Go
         urlBar.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_GO
                     || (event != null && event.getAction() == KeyEvent.ACTION_DOWN
@@ -122,22 +112,18 @@ public class BrowserActivity extends AppCompatActivity {
             return false;
         });
 
-        // Home -> always return to the browser welcome surface
+        // Home → same tab, welcome surface
         btnHome.setOnClickListener(v -> {
             LogManager.i("Activity", "Home clicked");
-            goToWelcome();
+            goToWelcome(false);
         });
 
-        // New Tab -> foundational stub: open a fresh welcome session
-        // Later this will call into C++ / TabManager to create an isolated session
+        // New Tab → create session, then welcome
         btnAddTab.setOnClickListener(v -> {
             LogManager.i("Activity", "New Tab clicked");
-            // TODO: TabManager.createTab() -> new session id, history, etc.
-            goToWelcome();
-            Toast.makeText(this, "New tab (welcome)", Toast.LENGTH_SHORT).show();
+            goToWelcome(true);
         });
 
-        // Menu -> populate context-sensitive options and open drawer
         btnMenu.setOnClickListener(v -> {
             LogManager.i("Activity", "Menu clicked");
             populateSidebarOptions();
@@ -145,11 +131,22 @@ public class BrowserActivity extends AppCompatActivity {
         });
     }
 
-    /** Shared path for Home and New-Tab for now. */
-    private void goToWelcome() {
+    /**
+ * @param createNewTab if true, allocate a new TabSession first
+ */
+    private void goToWelcome(boolean createNewTab) {
         if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.END)) {
             drawerLayout.closeDrawer(GravityCompat.END);
         }
+        if (createNewTab) {
+            TabSession session = TabManager.get().create();
+            Toast.makeText(this, "Tab " + session.id + " (" + TabManager.get().count() + ")",
+                    Toast.LENGTH_SHORT).show();
+        }
+        // Clear URL on the active session when returning home
+        TabManager.get().active().currentUrl = "";
+        TabManager.get().active().title = "New Tab";
+
         StateManager.get().transitionTo(BrowserState.WELCOME, null);
         if (urlBar != null) {
             urlBar.setText("");
@@ -168,19 +165,16 @@ public class BrowserActivity extends AppCompatActivity {
         params.setMargins(0, 0, 0, 12);
 
         if (current == BrowserState.WELCOME) {
-            // Welcome-state options (browser chrome)
             addSidebarOption("New Tab", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
-                goToWelcome();
+                goToWelcome(true);
             });
             addSidebarOption("History", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
-                // TODO: open history UI (local store / C++ later)
                 Toast.makeText(this, "History (stub)", Toast.LENGTH_SHORT).show();
             });
             addSidebarOption("Downloads", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
-                // TODO: internal downloads store + export to public Downloads
                 Toast.makeText(this, "Downloads (stub)", Toast.LENGTH_SHORT).show();
             });
             addSidebarOption("Settings", params, v -> {
@@ -188,29 +182,23 @@ public class BrowserActivity extends AppCompatActivity {
                 StateManager.get().transitionTo(BrowserState.SETTINGS, null);
             });
         } else {
-            // Page / content-state options
             addSidebarOption("Refresh", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
                 if (webView != null) webView.reload();
             });
             addSidebarOption("Find in page", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
-                // Basic example of content interaction via WebView
-                // Full UI can later be an HTML overlay or native dialog
                 if (webView != null) {
-                    webView.findAllAsync(""); // clears; real UI will call with query
-                    Toast.makeText(this, "Find in page (stub – use WebView.findAllAsync)", Toast.LENGTH_SHORT).show();
+                    webView.findAllAsync("");
+                    Toast.makeText(this, "Find in page (stub)", Toast.LENGTH_SHORT).show();
                 }
             });
             addSidebarOption("Bookmark", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
-                // TODO: BookmarkStore.add(currentUrl, title)
                 Toast.makeText(this, "Bookmark (stub)", Toast.LENGTH_SHORT).show();
             });
             addSidebarOption("Reader / Document", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
-                // Future: extract main content via C++ / JS and show in document UI
-                LogManager.i("Activity", "Reader mode framework triggered");
                 Toast.makeText(this, "Reader mode (stub)", Toast.LENGTH_SHORT).show();
             });
         }
@@ -237,14 +225,14 @@ public class BrowserActivity extends AppCompatActivity {
             @Override
             public void onUrUpdated(String url) {
                 runOnUiThread(() -> {
+                    boolean localUi = url != null
+                            && (url.startsWith("file://") || url.contains("/assets/ui/"));
                     if (urlBar != null) {
-                        // Keep omnibox empty on local welcome/settings surfaces
-                        if (url != null && (url.startsWith("file://") || url.contains("/assets/ui/"))) {
-                            urlBar.setText("");
-                        } else {
-                            urlBar.setText(url);
-                        }
+                        urlBar.setText(localUi ? "" : (url != null ? url : ""));
                         urlBar.clearFocus();
+                    }
+                    if (!localUi && url != null && !url.isEmpty()) {
+                        TabManager.get().recordNavigation(url, null);
                     }
                 });
             }
@@ -263,6 +251,8 @@ public class BrowserActivity extends AppCompatActivity {
         });
 
         host.attach();
+        // Ensure TabManager has a session before first paint
+        TabManager.get().active();
         StateManager.get().transitionTo(BrowserState.WELCOME, null);
         LogManager.i("Activity", "BrowserActivity ready");
     }
