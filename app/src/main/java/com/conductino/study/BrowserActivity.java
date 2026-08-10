@@ -25,6 +25,8 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.conductino.study.downloads.DownloadStore;
+import com.conductino.study.library.BookmarkStore;
+import com.conductino.study.library.HistoryStore;
 import com.conductino.study.logging.LogManager;
 import com.conductino.study.net.NavigationController;
 import com.conductino.study.state.BrowserState;
@@ -53,15 +55,9 @@ public class BrowserActivity extends AppCompatActivity {
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
                 boolean allGranted = true;
                 for (Boolean isGranted : result.values()) {
-                    if (!isGranted) {
-                        allGranted = false;
-                        break;
-                    }
+                    if (!isGranted) allGranted = false;
                 }
-                if (allGranted) {
-                    LogManager.i("Activity", "All permissions granted by user.");
-                } else {
-                    LogManager.i("Activity", "Permissions denied.");
+                if (!allGranted) {
                     Toast.makeText(this, "Storage permissions are required for public export.", Toast.LENGTH_LONG).show();
                 }
                 initializeBrowserEngine();
@@ -95,8 +91,7 @@ public class BrowserActivity extends AppCompatActivity {
             if (actionId == EditorInfo.IME_ACTION_GO
                     || (event != null && event.getAction() == KeyEvent.ACTION_DOWN
                     && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-                String input = urlBar.getText().toString().trim();
-                NavigationController.get().handleInput(input);
+                NavigationController.get().handleInput(urlBar.getText().toString().trim());
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (imm != null) imm.hideSoftInputFromWindow(urlBar.getWindowToken(), 0);
                 return true;
@@ -131,9 +126,29 @@ public class BrowserActivity extends AppCompatActivity {
     }
 
     private void openDownloads() {
-        // Payload is a JSON array; downloads UI also accepts { items: [...] }
-        String json = DownloadStore.get().listAsJson();
-        StateManager.get().transitionTo(BrowserState.DOWNLOADS, json);
+        StateManager.get().transitionTo(BrowserState.DOWNLOADS, DownloadStore.get().listAsJson());
+    }
+
+    private void openHistory() {
+        StateManager.get().transitionTo(BrowserState.HISTORY, HistoryStore.get().listAsJson(100));
+    }
+
+    private void openBookmarks() {
+        StateManager.get().transitionTo(BrowserState.BOOKMARKS, BookmarkStore.get().listAsJson());
+    }
+
+    private void bookmarkCurrent() {
+        String url = urlBar != null ? urlBar.getText().toString().trim() : "";
+        if (url.isEmpty() && webView != null) {
+            url = webView.getUrl() != null ? webView.getUrl() : "";
+        }
+        if (url.isEmpty() || url.contains("appassets.androidplatform.net")) {
+            Toast.makeText(this, "Nothing to bookmark", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String title = webView != null && webView.getTitle() != null ? webView.getTitle() : url;
+        boolean ok = BookmarkStore.get().add(url, title);
+        Toast.makeText(this, ok ? "Bookmarked" : "Already bookmarked", Toast.LENGTH_SHORT).show();
     }
 
     private void populateSidebarOptions() {
@@ -146,10 +161,11 @@ public class BrowserActivity extends AppCompatActivity {
         );
         params.setMargins(0, 0, 0, 12);
 
-        // Common chrome options on welcome / downloads / settings
         boolean chrome = current == BrowserState.WELCOME
                 || current == BrowserState.SETTINGS
-                || current == BrowserState.DOWNLOADS;
+                || current == BrowserState.DOWNLOADS
+                || current == BrowserState.HISTORY
+                || current == BrowserState.BOOKMARKS;
 
         if (chrome) {
             addSidebarOption("New Tab", params, v -> {
@@ -158,7 +174,11 @@ public class BrowserActivity extends AppCompatActivity {
             });
             addSidebarOption("History", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
-                Toast.makeText(this, "History (next foundation step)", Toast.LENGTH_SHORT).show();
+                openHistory();
+            });
+            addSidebarOption("Bookmarks", params, v -> {
+                drawerLayout.closeDrawer(GravityCompat.END);
+                openBookmarks();
             });
             addSidebarOption("Downloads", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
@@ -182,7 +202,11 @@ public class BrowserActivity extends AppCompatActivity {
             });
             addSidebarOption("Bookmark", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
-                Toast.makeText(this, "Bookmark (next foundation step)", Toast.LENGTH_SHORT).show();
+                bookmarkCurrent();
+            });
+            addSidebarOption("History", params, v -> {
+                drawerLayout.closeDrawer(GravityCompat.END);
+                openHistory();
             });
             addSidebarOption("Downloads", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
@@ -190,7 +214,7 @@ public class BrowserActivity extends AppCompatActivity {
             });
             addSidebarOption("Reader / Document", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
-                Toast.makeText(this, "Reader mode (stub)", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Reader mode (next foundation step)", Toast.LENGTH_SHORT).show();
             });
         }
     }
@@ -223,6 +247,8 @@ public class BrowserActivity extends AppCompatActivity {
                     }
                     if (!localUi && url != null && !url.isEmpty()) {
                         TabManager.get().recordNavigation(url, null);
+                        String title = webView != null ? webView.getTitle() : null;
+                        HistoryStore.get().add(url, title);
                     }
                 });
             }
