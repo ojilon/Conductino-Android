@@ -24,21 +24,18 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.conductino.study.downloads.DownloadStore;
 import com.conductino.study.logging.LogManager;
+import com.conductino.study.net.NavigationController;
 import com.conductino.study.state.BrowserState;
 import com.conductino.study.state.StateManager;
 import com.conductino.study.tabs.TabManager;
 import com.conductino.study.tabs.TabSession;
 import com.conductino.study.web.WebViewHost;
-import com.conductino.study.net.NavigationController;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Single Activity that hosts the WebView chrome + content area.
- * Delegates real work to specialized packages (tabs/, web/, state/, net/, …).
- */
 public class BrowserActivity extends AppCompatActivity {
 
     private WebViewHost host;
@@ -65,7 +62,7 @@ public class BrowserActivity extends AppCompatActivity {
                     LogManager.i("Activity", "All permissions granted by user.");
                 } else {
                     LogManager.i("Activity", "Permissions denied.");
-                    Toast.makeText(this, "Storage permissions are required for downloads.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Storage permissions are required for public export.", Toast.LENGTH_LONG).show();
                 }
                 initializeBrowserEngine();
             });
@@ -89,7 +86,6 @@ public class BrowserActivity extends AppCompatActivity {
         if (hasRequiredPermissions()) {
             initializeBrowserEngine();
         } else {
-            LogManager.i("Activity", "Requesting permissions asynchronously...");
             requestPermissionLauncher.launch(getRequiredPermissionsArray());
         }
     }
@@ -100,40 +96,22 @@ public class BrowserActivity extends AppCompatActivity {
                     || (event != null && event.getAction() == KeyEvent.ACTION_DOWN
                     && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
                 String input = urlBar.getText().toString().trim();
-                LogManager.i("Activity", "Omnibox submit: " + input);
                 NavigationController.get().handleInput(input);
-
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.hideSoftInputFromWindow(urlBar.getWindowToken(), 0);
-                }
+                if (imm != null) imm.hideSoftInputFromWindow(urlBar.getWindowToken(), 0);
                 return true;
             }
             return false;
         });
 
-        // Home → same tab, welcome surface
-        btnHome.setOnClickListener(v -> {
-            LogManager.i("Activity", "Home clicked");
-            goToWelcome(false);
-        });
-
-        // New Tab → create session, then welcome
-        btnAddTab.setOnClickListener(v -> {
-            LogManager.i("Activity", "New Tab clicked");
-            goToWelcome(true);
-        });
-
+        btnHome.setOnClickListener(v -> goToWelcome(false));
+        btnAddTab.setOnClickListener(v -> goToWelcome(true));
         btnMenu.setOnClickListener(v -> {
-            LogManager.i("Activity", "Menu clicked");
             populateSidebarOptions();
             drawerLayout.openDrawer(GravityCompat.END);
         });
     }
 
-    /**
- * @param createNewTab if true, allocate a new TabSession first
- */
     private void goToWelcome(boolean createNewTab) {
         if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.END)) {
             drawerLayout.closeDrawer(GravityCompat.END);
@@ -143,15 +121,19 @@ public class BrowserActivity extends AppCompatActivity {
             Toast.makeText(this, "Tab " + session.id + " (" + TabManager.get().count() + ")",
                     Toast.LENGTH_SHORT).show();
         }
-        // Clear URL on the active session when returning home
         TabManager.get().active().currentUrl = "";
         TabManager.get().active().title = "New Tab";
-
         StateManager.get().transitionTo(BrowserState.WELCOME, null);
         if (urlBar != null) {
             urlBar.setText("");
             urlBar.clearFocus();
         }
+    }
+
+    private void openDownloads() {
+        // Payload is a JSON array; downloads UI also accepts { items: [...] }
+        String json = DownloadStore.get().listAsJson();
+        StateManager.get().transitionTo(BrowserState.DOWNLOADS, json);
     }
 
     private void populateSidebarOptions() {
@@ -164,18 +146,23 @@ public class BrowserActivity extends AppCompatActivity {
         );
         params.setMargins(0, 0, 0, 12);
 
-        if (current == BrowserState.WELCOME) {
+        // Common chrome options on welcome / downloads / settings
+        boolean chrome = current == BrowserState.WELCOME
+                || current == BrowserState.SETTINGS
+                || current == BrowserState.DOWNLOADS;
+
+        if (chrome) {
             addSidebarOption("New Tab", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
                 goToWelcome(true);
             });
             addSidebarOption("History", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
-                Toast.makeText(this, "History (stub)", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "History (next foundation step)", Toast.LENGTH_SHORT).show();
             });
             addSidebarOption("Downloads", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
-                Toast.makeText(this, "Downloads (stub)", Toast.LENGTH_SHORT).show();
+                openDownloads();
             });
             addSidebarOption("Settings", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
@@ -195,7 +182,11 @@ public class BrowserActivity extends AppCompatActivity {
             });
             addSidebarOption("Bookmark", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
-                Toast.makeText(this, "Bookmark (stub)", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Bookmark (next foundation step)", Toast.LENGTH_SHORT).show();
+            });
+            addSidebarOption("Downloads", params, v -> {
+                drawerLayout.closeDrawer(GravityCompat.END);
+                openDownloads();
             });
             addSidebarOption("Reader / Document", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
@@ -220,13 +211,12 @@ public class BrowserActivity extends AppCompatActivity {
         if (host != null) return;
 
         host = new WebViewHost(this, webView);
-
         host.setUiCallback(new WebViewHost.BrowserUiCallback() {
             @Override
             public void onUrUpdated(String url) {
                 runOnUiThread(() -> {
                     boolean localUi = url != null
-                            && (url.startsWith("file://") || url.contains("/assets/ui/"));
+                            && (url.startsWith("file://") || url.contains("appassets.androidplatform.net"));
                     if (urlBar != null) {
                         urlBar.setText(localUi ? "" : (url != null ? url : ""));
                         urlBar.clearFocus();
@@ -251,7 +241,6 @@ public class BrowserActivity extends AppCompatActivity {
         });
 
         host.attach();
-        // Ensure TabManager has a session before first paint
         TabManager.get().active();
         StateManager.get().transitionTo(BrowserState.WELCOME, null);
         LogManager.i("Activity", "BrowserActivity ready");
@@ -291,9 +280,7 @@ public class BrowserActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        if (host != null) {
-            host.detach();
-        }
+        if (host != null) host.detach();
         super.onDestroy();
     }
 }
