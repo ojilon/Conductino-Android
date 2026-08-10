@@ -1,50 +1,30 @@
 # Conductino – Foundation Map
 
-Chrome stays stable. New features land as modules + short guides.
-
----
+Branch: `front_end`. Chrome is stable; extend via modules + READMEs.
 
 ## Implemented (v0)
 
-| § | Topic | Where |
-|---|--------|--------|
-| 1 | Layout | `activity_browser.xml` |
-| 2 | Tabs | `tabs/TabManager`, `tabs/README.md` |
-| 3 | Search engines | `SettingsManager`, `settings/README.md` |
-| 4 | Sidebar | `BrowserActivity.populateSidebarOptions` |
-| 5 | Downloads | `downloads/DownloadStore`, UI `assets/ui/downloads/` |
-| 6 | History & bookmarks | `library/*`, UI `history/` + `bookmarks/` |
-| 7 | Page content | `content/PageContentHelper`, reader `assets/ui/document/` |
-| 8 | C++ layout | `backend/` |
-| 9 | Themes | `theme.css`, `colors.xml`, `docs/THEMES.md` |
+| Area | Location |
+|------|----------|
+| Layout | `activity_browser.xml` |
+| Tabs + switcher | `tabs/TabManager`, UI `assets/ui/tabs/`, bridge `switchTab`/`closeTab` |
+| Search engines | `SettingsManager`, Settings picker |
+| Sidebar | state-aware options including **Tabs** |
+| Downloads | `downloads/DownloadStore` |
+| History / bookmarks | `library/*` |
+| Find / reader | `content/PageContentHelper`, `assets/ui/document/` |
+| Themes | `theme.css` (`aurora-dark` / `aurora-dim`), Settings picker, `setTheme` |
+| Native core path | `backend/` |
+| Tests | `docs/TESTING.md`, unit tests under `app/src/test` |
 
----
+## Session complete
 
-## §7 Page content — details
+Further work (when you resume):
 
-- **Find in page:** dialog → `PageContentHelper.findInPage` / `clearFind`
-- **Reader:** extract `document.body.innerText` → `BrowserState.DOCUMENT` with JSON `{title,url,text}`
-- Guide: `content/README.md` (Readability, selection, AI, C++ next)
+1. Persist tabs across process death  
+2. Export downloads to public MediaStore  
+3. Find prev/next bar  
+4. Readability / AI on extracted text  
+5. Apply theme to native top bar colors dynamically  
 
----
-
-## §9 Themes — details
-
-- HTML tokens: `assets/ui/shared/theme.css`
-- Native: `res/values/colors.xml`, `themes.xml`
-- Guide: `docs/THEMES.md` — keep hex values in sync
-
----
-
-## Extend next (your roadmap)
-
-1. Tab switcher UI + persistence
-2. Download export to public MediaStore
-3. Find bar with prev/next
-4. Readability.js or C++ article extract
-5. Theme picker in Settings
-6. AI summarise harness on extracted text
-
----
-
-*Foundation pass complete on branch `front_end`.*
+Run unit tests: `./gradlew :app:testDebugUnitTest`
