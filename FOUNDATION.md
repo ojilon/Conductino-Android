@@ -23,34 +23,31 @@ DrawerLayout
 
 ---
 
-## 2. Tabs & sessions (next real work)
+## 2. Tabs & sessions — **IMPLEMENTED (v0)**
 
-Goal: each tab is an isolated session (URL history, scroll, form data later).
+**Status:** Working in-memory sessions. Extend, do not replace.
 
-Suggested shape (C++ preferred for the heavy parts):
+| Piece | Location |
+|-------|----------|
+| Data | `app/.../tabs/TabSession.java` |
+| Manager | `app/.../tabs/TabManager.java` |
+| Guide | `app/.../tabs/README.md` |
+| C sketch | `backend/include/tabs.h` + `backend/features/tabs/README.md` |
 
-```text
-struct TabSession {
-  uint64_t id;
-  std::string current_url;
-  std::vector<std::string> history;  // or a ring buffer
-  // future: scroll_y, title, favicon hash, last_visit
-};
+**Behaviour now**
 
-namespace tabs {
-  TabSession* create();
-  void close(uint64_t id);
-  TabSession* active();
-  void switch_to(uint64_t id);
-  // list, persist, restore
-}
-```
+- App always has ≥1 tab (`TabManager` creates one on first use).
+- **New Tab** → `TabManager.create()` then welcome.
+- **Home** → same tab, welcome (clears session URL/title).
+- External page loads call `recordNavigation(url, title)` from the WebView UI callback.
 
-- Java only holds the active WebView and calls into JNI.
-- New Tab button already routes to welcome; replace the stub with `tabs::create()` + load welcome for that session.
-- Persistence: simple SQLite or a small binary log under app private storage (see Storage section).
+**Your next extensions**
 
-Do **not** put full tab logic inside `BrowserActivity`.
+1. Tab switcher UI using `list()` / `switchTo(id)` then reload `active().currentUrl`.
+2. Persist sessions (SQLite) — see tabs README.
+3. Optional C mirror via `tabs.h` when you need native persistence.
+
+Do **not** put tab lists inside `BrowserActivity` beyond the thin wiring already there.
 
 ---
 
@@ -140,41 +137,24 @@ Keep heavy parsing in C++ (see `features/text`, `features/pdf` stubs). Java only
 
 ---
 
-## 8. C++ layout (planned move)
+## 8. C++ layout — **MOVED**
 
-Current code lives under `app/src/main/cpp/`. Longer term:
+Native code lives at repo root:
 
 ```text
-backend/                 ← root-level, not inside app/
+backend/
   CMakeLists.txt
   include/
-  core/                  ← tabs, storage, settings glue
+  src/
   features/
-    text/
-    pdf/
-    net/
-    media/
-    ...
-  third_party/           ← external libs (gitignored or submodule)
+  third_party/   ← gitignored; place curl/sqlite/lexbor locally
+  cmake/CompilerFlags.cmake  ← C++23 ready
 ```
 
-Rules you asked for:
+`app/build.gradle` points at `../backend/CMakeLists.txt`.  
+`BUILD_AURORA_CORE` defaults OFF until third_party is present.
 
-- C++17/20/23, **no classes** – prefer structs, enums, free functions, namespaces.
-- Experienced-beginner level: short functions, clear ownership.
-- CMake must set the standard and expose include paths so `clangd` / LSP works.
-- Put long or complex algorithms in `.md` explanations first; implement only the thin stubs until needed.
-
-Suggested starter libraries (document only; do not vendor yet unless required):
-
-| Need              | Library ideas                          |
-|-------------------|----------------------------------------|
-| HTTP              | libcurl / existing Android stack       |
-| JSON              | nlohmann/json or cJSON                 |
-| SQLite            | sqlite3 amalgamation                   |
-| PDF               | PDFium / mupdf (heavy – plan carefully)|
-| Text / HTML       | gumbo / lexbor, or keep simple regex   |
-| Crypto            | already have a crypto feature stub     |
+Rules: structs / free functions / namespaces; no classes; short functions.
 
 ---
 
@@ -194,24 +174,25 @@ Suggested starter libraries (document only; do not vendor yet unless required):
 - Top-bar IDs and drawer contract
 - `WebViewHost` + `StateManager` + `BrowserState` enum
 - Aurora JS bridge contract
+- `TabManager` public API (create / close / switchTo / active)
 
 **Grows (add modules, don’t rewrite shell):**
 
-- Tab / session manager
+- Tab switcher UI + persistence
 - Bookmark / history / downloads stores
 - Document reader UI + C++ extractors
 - AI agent harness (separate surface)
-- Media playback helpers (document libraries in feature READMEs)
+- Media playback helpers
 
 ---
 
 ## 11. Short checklist for new features
 
-1. Prefer a new `assets/ui/<feature>/` or a new Java package under `features/`.
+1. Prefer a new `assets/ui/<feature>/` or a new Java package under `features/` / `tabs/`.
 2. Wire one sidebar entry or one omnibox command.
 3. Put any >~100-line algorithm behind a C++ namespace + short JNI surface.
 4. Update this file with the new module name and one-line purpose.
 
 ---
 
-*Last updated with the welcome polish and native chrome foundation on branch `front_end`.*
+*Last updated: §2 Tabs implemented (Java TabManager + C header sketch). Next: §3 Search engines.*
