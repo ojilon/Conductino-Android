@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -19,11 +20,13 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.conductino.study.content.PageContentHelper;
 import com.conductino.study.downloads.DownloadStore;
 import com.conductino.study.library.BookmarkStore;
 import com.conductino.study.library.HistoryStore;
@@ -151,6 +154,38 @@ public class BrowserActivity extends AppCompatActivity {
         Toast.makeText(this, ok ? "Bookmarked" : "Already bookmarked", Toast.LENGTH_SHORT).show();
     }
 
+    private void promptFindInPage() {
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setHint("Find in page");
+        new AlertDialog.Builder(this)
+                .setTitle("Find in page")
+                .setView(input)
+                .setPositiveButton("Find", (d, w) -> {
+                    String q = input.getText().toString();
+                    PageContentHelper.findInPage(webView, q);
+                    Toast.makeText(this, "Finding…", Toast.LENGTH_SHORT).show();
+                })
+                .setNeutralButton("Clear", (d, w) -> PageContentHelper.clearFind(webView))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void openReader() {
+        if (webView == null) return;
+        final String url = webView.getUrl() != null ? webView.getUrl() : "";
+        final String title = webView.getTitle() != null ? webView.getTitle() : "Reader";
+        if (url.contains("appassets.androidplatform.net")) {
+            Toast.makeText(this, "Open a web page first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Toast.makeText(this, "Extracting…", Toast.LENGTH_SHORT).show();
+        PageContentHelper.extractBodyText(webView, text -> runOnUiThread(() -> {
+            String payload = PageContentHelper.readerPayloadJson(title, url, text);
+            StateManager.get().transitionTo(BrowserState.DOCUMENT, payload);
+        }));
+    }
+
     private void populateSidebarOptions() {
         drawerOptionsContainer.removeAllViews();
         BrowserState current = StateManager.get().current();
@@ -165,7 +200,8 @@ public class BrowserActivity extends AppCompatActivity {
                 || current == BrowserState.SETTINGS
                 || current == BrowserState.DOWNLOADS
                 || current == BrowserState.HISTORY
-                || current == BrowserState.BOOKMARKS;
+                || current == BrowserState.BOOKMARKS
+                || current == BrowserState.DOCUMENT;
 
         if (chrome) {
             addSidebarOption("New Tab", params, v -> {
@@ -195,10 +231,7 @@ public class BrowserActivity extends AppCompatActivity {
             });
             addSidebarOption("Find in page", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
-                if (webView != null) {
-                    webView.findAllAsync("");
-                    Toast.makeText(this, "Find in page (stub)", Toast.LENGTH_SHORT).show();
-                }
+                promptFindInPage();
             });
             addSidebarOption("Bookmark", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
@@ -214,7 +247,7 @@ public class BrowserActivity extends AppCompatActivity {
             });
             addSidebarOption("Reader / Document", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
-                Toast.makeText(this, "Reader mode (next foundation step)", Toast.LENGTH_SHORT).show();
+                openReader();
             });
         }
     }
