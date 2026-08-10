@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.conductino.study.api.BrowserBridge;
 import com.conductino.study.content.PageContentHelper;
 import com.conductino.study.downloads.DownloadStore;
 import com.conductino.study.library.BookmarkStore;
@@ -140,6 +141,10 @@ public class BrowserActivity extends AppCompatActivity {
         StateManager.get().transitionTo(BrowserState.BOOKMARKS, BookmarkStore.get().listAsJson());
     }
 
+    private void openTabs() {
+        StateManager.get().transitionTo(BrowserState.TABS, BrowserBridge.tabsPayloadJson());
+    }
+
     private void bookmarkCurrent() {
         String url = urlBar != null ? urlBar.getText().toString().trim() : "";
         if (url.isEmpty() && webView != null) {
@@ -162,8 +167,7 @@ public class BrowserActivity extends AppCompatActivity {
                 .setTitle("Find in page")
                 .setView(input)
                 .setPositiveButton("Find", (d, w) -> {
-                    String q = input.getText().toString();
-                    PageContentHelper.findInPage(webView, q);
+                    PageContentHelper.findInPage(webView, input.getText().toString());
                     Toast.makeText(this, "Finding…", Toast.LENGTH_SHORT).show();
                 })
                 .setNeutralButton("Clear", (d, w) -> PageContentHelper.clearFind(webView))
@@ -201,12 +205,17 @@ public class BrowserActivity extends AppCompatActivity {
                 || current == BrowserState.DOWNLOADS
                 || current == BrowserState.HISTORY
                 || current == BrowserState.BOOKMARKS
-                || current == BrowserState.DOCUMENT;
+                || current == BrowserState.DOCUMENT
+                || current == BrowserState.TABS;
 
         if (chrome) {
             addSidebarOption("New Tab", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
                 goToWelcome(true);
+            });
+            addSidebarOption("Tabs", params, v -> {
+                drawerLayout.closeDrawer(GravityCompat.END);
+                openTabs();
             });
             addSidebarOption("History", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
@@ -236,6 +245,10 @@ public class BrowserActivity extends AppCompatActivity {
             addSidebarOption("Bookmark", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
                 bookmarkCurrent();
+            });
+            addSidebarOption("Tabs", params, v -> {
+                drawerLayout.closeDrawer(GravityCompat.END);
+                openTabs();
             });
             addSidebarOption("History", params, v -> {
                 drawerLayout.closeDrawer(GravityCompat.END);
@@ -279,8 +292,8 @@ public class BrowserActivity extends AppCompatActivity {
                         urlBar.clearFocus();
                     }
                     if (!localUi && url != null && !url.isEmpty()) {
-                        TabManager.get().recordNavigation(url, null);
                         String title = webView != null ? webView.getTitle() : null;
+                        TabManager.get().recordNavigation(url, title);
                         HistoryStore.get().add(url, title);
                     }
                 });
