@@ -51,25 +51,29 @@ Do **not** put tab lists inside `BrowserActivity` beyond the thin wiring already
 
 ---
 
-## 3. Search engines
+## 3. Search engines — **IMPLEMENTED (v0)**
 
-Already present: `assets/config/search_engines.json`
+**Status:** Omnibox + welcome use the selected engine; choice persists.
 
-- Default: DuckDuckGo
-- Also: Google, Brave Search
-- Add more or a custom engine by extending the JSON + Settings UI.
+| Piece | Location |
+|-------|----------|
+| Catalog | `assets/config/search_engines.json` (DuckDuckGo, Google, Brave) |
+| API | `SettingsManager.buildSearchUrl()` / `setDefaultEngine()` / `listEngines()` |
+| Nav | `NavigationController.handleInput()` uses `buildSearchUrl` for queries |
+| UI | `assets/ui/settings/index.html` engine picker → `Aurora.selectEngine` |
+| Guide | `app/.../settings/README.md` |
 
-`NavigationController` / SettingsManager should read this file. Omnibox and the welcome form both call the same submit path so the chosen engine is always used.
+**Behaviour now**
 
-Custom engine example:
+- Selected engine id in SharedPreferences (`conductino_settings`).
+- Non-URL input → `queryUrl` template with `{query}` URL-encoded.
+- Settings lists DuckDuckGo / Google / Brave; tap persists and applies immediately.
 
-```json
-{
-  "id": "custom",
-  "name": "My Engine",
-  "queryUrl": "https://example.com/search?q={query}"
-}
-```
+**Extend**
+
+- Add engines in JSON (see settings README).
+- Custom runtime engines: mutable copy under `filesDir`.
+- Typeahead via `suggestUrl` (still returns `[]`).
 
 ---
 
@@ -175,6 +179,7 @@ Rules: structs / free functions / namespaces; no classes; short functions.
 - `WebViewHost` + `StateManager` + `BrowserState` enum
 - Aurora JS bridge contract
 - `TabManager` public API (create / close / switchTo / active)
+- `SettingsManager.buildSearchUrl` / engine id persistence
 
 **Grows (add modules, don’t rewrite shell):**
 
@@ -195,4 +200,4 @@ Rules: structs / free functions / namespaces; no classes; short functions.
 
 ---
 
-*Last updated: §2 Tabs implemented (Java TabManager + C header sketch). Next: §3 Search engines.*
+*Last updated: §3 Search engines implemented. Next: §4 Sidebar (document only if already OK) then §5 Downloads.*
