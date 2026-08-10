@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bookmarks</title>
+  <link rel="stylesheet" href="../shared/theme.css" />
+  <style>
+    .wrap { padding: 20px; max-width: 640px; margin: 0 auto; }
+    h1 { font-size: 22px; margin: 0 0 12px; }
+    .item { display: block; padding: 12px 14px; background: var(--bg-elev);
+      border: 1px solid #26305a; border-radius: 12px; margin-bottom: 8px;
+      color: var(--fg); text-decoration: none; }
+    .title { font-weight: 600; font-size: 14px; }
+    .url { font-size: 12px; color: var(--muted); margin-top: 4px; word-break: break-all; }
+    .empty { color: var(--muted); padding: 24px 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Bookmarks</h1>
+    <div id="list" class="empty">No bookmarks yet. Use the side menu on a page to save one.</div>
+  </div>
+  <script src="../shared/aurora-api.js"></script>
+  <script>
+    Aurora.ready('bookmarks');
+    function render(items) {
+      const el = document.getElementById('list');
+      if (!items || !items.length) {
+        el.className = 'empty';
+        el.textContent = 'No bookmarks yet. Use the side menu on a page to save one.';
+        return;
+      }
+      el.className = '';
+      el.innerHTML = items.map((r) =>
+        '<a class="item" href="#" data-url="' + (r.url || '') + '">' +
+        '<div class="title">' + (r.title || r.url || 'Untitled') + '</div>' +
+        '<div class="url">' + (r.url || '') + '</div></a>'
+      ).join('');
+      el.querySelectorAll('a').forEach((a) => {
+        a.onclick = (e) => {
+          e.preventDefault();
+          const u = a.getAttribute('data-url');
+          if (u) Aurora.open(u);
+        };
+      });
+    }
+    Aurora.on('payload', (d) => {
+      render(Array.isArray(d) ? d : (d && d.items) || []);
+    });
+  </script>
+</body>
+</html>

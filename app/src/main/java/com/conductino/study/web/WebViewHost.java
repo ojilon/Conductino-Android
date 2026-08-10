@@ -2,31 +2,40 @@ package com.conductino.study.web;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.webkit.WebChromeClient;
+import android.webkit.DownloadListener;
+import android.webkit.URLUtil;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import androidx.webkit.WebViewAssetLoader;
 
 import com.conductino.study.api.BrowserBridge;
+import com.conductino.study.downloads.DownloadStore;
 import com.conductino.study.logging.LogManager;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Owns the single WebView instance and wires up:
- *   - the asset loader (serves assets/ui/** under https://appassets.androidplatform.net/)
- *   - the JS<->Java bridge (@JavascriptInterface)
- *   - native external loading to bypass Cloudflare/CORS
+ *   - asset loader (assets/ui/**)
+ *   - JS bridge
+ *   - external loads
+ *   - download listener → internal DownloadStore
  */
-
 public class WebViewHost {
 
     private final Activity activity;
     private final WebView webView;
     private BrowserBridge bridge;
-    private BrowserUiCallback uiCallback; //New callback for ui updates
+    private BrowserUiCallback uiCallback;
+    private final ExecutorService downloadExec = Executors.newSingleThreadExecutor();
 
-    //Interface to talk back to BrowserActivity's native UI
     public interface BrowserUiCallback {
         void onUrUpdated(String url);
         void onProgressUpdated(int progress);
@@ -55,15 +64,12 @@ public class WebViewHost {
                 .addPathHandler("/", new WebViewAssetLoader.AssetsPathHandler(activity))
                 .build();
 
-        webView.setWebViewClient(new ConductinoWebViewClient(assetLoader));
-        webView.setWebChromeClient(new ConductinoChromeClient());
-
-        //Pass the asset loder AND the UI callback into custom clients
         webView.setWebViewClient(new ConductinoWebViewClient(assetLoader) {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
-                if (uiCallback != null && !url.contains("appassets.androidplatform.net")) {
+                if (uiCallback != null && url != null
+                        && !url.contains("appassets.androidplatform.net")) {
                     uiCallback.onUrUpdated(url);
                 }
             }
@@ -79,27 +85,57 @@ public class WebViewHost {
             }
         });
 
-        // Expose the API surface to every UI page.
+        webView.setDownloadListener(new DownloadListener() {
+            @Override
+            public void onDownloadStart(String url, String userAgent, String contentDisposition,
+                                        String mimeType, long contentLength) {
+                String name = URLUtil.guessFileName(url, contentDisposition, mimeType);
+                LogManager.i("WebViewHost", "download start name=" + name + " url=" + url);
+                downloadExec.execute(() -> fetchToStore(url, name, mimeType));
+            }
+        });
+
         bridge = new BrowserBridge(this);
         webView.addJavascriptInterface(bridge, "AuroraNative");
 
-        LogManager.i("WebViewHost", "WebView attached with asset loader + bridge");
+        LogManager.i("WebViewHost", "WebView attached");
     }
 
-    /** Load a specific UI state document. Called by StateManager (local HTML). */
+    /** Simple blocking fetch into the internal downloads store (v0). */
+    private void fetchToStore(String urlStr, String fileName, String mimeType) {
+        try {
+            DownloadStore store = DownloadStore.get();
+            File dest = store.allocateFile(fileName);
+            HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
+            conn.setInstanceFollowRedirects(true);
+            conn.setConnectTimeout(15000);
+            conn.setReadTimeout(30000);
+            try (InputStream in = conn.getInputStream();
+                 FileOutputStream out = new FileOutputStream(dest)) {
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = in.read(buf)) >= 0) {
+                    out.write(buf, 0, n);
+                }
+            }
+            store.add(urlStr, dest.getName(), dest, mimeType);
+            LogManager.i("WebViewHost", "download saved " + dest.getAbsolutePath());
+        } catch (Exception e) {
+            LogManager.e("WebViewHost", "download failed", e);
+        }
+    }
+
     public void loadUi(String relativeIndexPath) {
         String url = "https://appassets.androidplatform.net/ui/" + relativeIndexPath;
         LogManager.d("WebViewHost", "loadUi -> " + url);
         webView.post(() -> webView.loadUrl(url));
     }
 
-    //Load an external webpage natively (Bypasses CORS/Bot checks).
     public void loadExternalUrl(String url) {
         LogManager.d("WebViewHost", "loadExternalUrl -> " + url);
         webView.post(() -> webView.loadUrl(url));
     }
 
-    /** Push a JSON payload down to the currently loaded UI. */
     public void emit(String eventName, String jsonPayload) {
         String js = "window.Aurora && window.Aurora.onEvent("
                 + jsStr(eventName) + "," + jsonPayload + ");";
@@ -117,6 +153,7 @@ public class WebViewHost {
     public void detach() {
         webView.removeJavascriptInterface("AuroraNative");
         webView.destroy();
+        downloadExec.shutdownNow();
     }
 
     private static String jsStr(String v) {

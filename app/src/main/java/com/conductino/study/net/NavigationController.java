@@ -3,7 +3,6 @@ package com.conductino.study.net;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.conductino.study.core.NativeCore;
 import com.conductino.study.logging.LogManager;
 import com.conductino.study.settings.SettingsManager;
 import com.conductino.study.state.BrowserState;
@@ -11,53 +10,53 @@ import com.conductino.study.state.StateManager;
 
 /**
  * Orchestrates a single navigation:
- *   plain text  -> is it a URL or a query?
- *   URL         -> trigger native WebView load
- *   query       -> hit search engine -> trigger native WebView load
+ *   plain text  -> URL or search query?
+ *   URL         -> EXTERNAL state with that URL
+ *   query       -> selected search engine queryUrl + EXTERNAL
  */
-
 public class NavigationController {
 
     private static final NavigationController INSTANCE = new NavigationController();
     public static NavigationController get() { return INSTANCE; }
     private NavigationController() {}
 
-    private String engineId = SettingsManager.get().defaultEngine();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public void setEngine(String id) {
-        this.engineId = id;
-        LogManager.i("Nav", "search engine -> " + id);
+        SettingsManager.get().setDefaultEngine(id);
+        LogManager.i("Nav", "search engine -> " + SettingsManager.get().defaultEngine());
     }
 
-    /** 
-     * Parses input and routes it natively to bypass bot-protection.
-     * */
+    public String currentEngineId() {
+        return SettingsManager.get().defaultEngine();
+    }
+
     public void handleInput(String text) {
         if (text == null || text.trim().isEmpty()) return;
 
         String query = text.trim();
         String url;
 
-        //Basic Heuristic: URL vs Search
-        if (!query.contains(" ") && query.contains(".")) {
-            url = (!query.startsWith("http://") && !query.startsWith("https://")) ? "https://" + query : query;
-        }else {
-            //Route through selected search engine (for noe google as defualt)
-            url = "https://www.google.com/search?q=" + query;
+        if (looksLikeUrl(query)) {
+            url = (query.startsWith("http://") || query.startsWith("https://"))
+                    ? query
+                    : "https://" + query;
+        } else {
+            url = SettingsManager.get().buildSearchUrl(query);
         }
 
-        LogManager.i("Nav", "Routing native navigation to: " + url);
+        LogManager.i("Nav", "navigate -> " + url);
+        mainHandler.post(() -> StateManager.get().transitionTo(BrowserState.EXTERNAL, url));
+    }
 
-        /**
-         * Inform the stateManager to handle an EXTERNAM state, passing the URL as the payload.
-         * (add external to BrowserState enum
-         * */
-         mainHandler.post(() -> StateManager.get().transitionTo(BrowserState.EXTERNAL, url));
+    private static boolean looksLikeUrl(String q) {
+        if (q.contains(" ")) return false;
+        if (q.startsWith("http://") || q.startsWith("https://")) return true;
+        return q.contains(".") || q.startsWith("localhost");
     }
 
     public String suggestions(String partial) {
-        // We will move this to C later. Leave as is for now, or return "[]" to disable temporarily.
+        // Typeahead later via engine suggestUrl
         return "[]";
     }
 

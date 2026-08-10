@@ -2,11 +2,22 @@ document.addEventListener('DOMContentLoaded', () => {
   Aurora.ready('welcome');
 
   const sc = document.getElementById('shortcuts');
-  ['Wikipedia', 'GitHub', 'News', 'Maps'].forEach((name) => {
+  const items = [
+    { label: 'Wikipedia', q: 'Wikipedia' },
+    { label: 'GitHub', q: 'GitHub' },
+    { label: 'arXiv', q: 'arxiv.org' },
+    { label: 'Scholar', q: 'Google Scholar' }
+  ];
+
+  items.forEach(({ label, q }) => {
     const a = document.createElement('a');
-    a.textContent = name;
+    a.textContent = label;
     a.href = '#';
-    a.onclick = (e) => { e.preventDefault(); Aurora.submit(name); };
+    a.setAttribute('role', 'button');
+    a.onclick = (e) => {
+      e.preventDefault();
+      Aurora.submit(q);
+    };
     sc.appendChild(a);
   });
 
@@ -16,5 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (v) Aurora.submit(v);
   });
 
-  document.getElementById('dev').onclick = () => Aurora.devtools();
+  const dev = document.getElementById('dev');
+  if (dev) {
+    dev.onclick = () => Aurora.devtools();
+  }
 });

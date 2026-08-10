@@ -1,7 +1,46 @@
-.doc-chrome { display: flex; align-items: center; gap: 8px; padding: 10px 12px; }
-.icon { width: 40px; height: 40px; border-radius: 12px; border: 1px solid #26305a;
-  background: var(--bg-elev); color: var(--fg); font-size: 20px; }
-.progress { height: 2px; width: 0; background: var(--accent);
-  transition: width .3s ease; }
-.progress.done { width: 100%; opacity: 0; transition: width .3s, opacity .4s .2s; }
-.page { padding: 16px; background: #fff; color: #111; min-height: 70vh; }
+.reader {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+  line-height: 1.55;
+}
+
+.reader-head {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #26305a;
+}
+
+.label {
+  margin: 0 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.reader-head h1 {
+  margin: 0 0 8px;
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  line-height: 1.25;
+}
+
+.url {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  word-break: break-all;
+}
+
+.body {
+  white-space: pre-wrap;
+  font-size: 16px;
+  color: var(--fg);
+}
+
+.hint {
+  margin-top: 28px;
+  font-size: 12px;
+  color: var(--muted);
+}

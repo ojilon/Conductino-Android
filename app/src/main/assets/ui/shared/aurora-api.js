@@ -1,13 +1,10 @@
 /*
- * Aurora frontend <-> Java bridge helper.
- * Every UI state includes this. It keeps the JS thin: collect input, call
- * Java (window.AuroraNative), and render whatever Java emits back.
+ * Conductino frontend <-> Java bridge helper.
  */
 (function () {
   const hasNative = typeof window.AuroraNative !== 'undefined';
 
   window.Aurora = {
-    // --- calls INTO Java ---
     ready(stateName) {
       if (hasNative) window.AuroraNative.uiReady(stateName);
     },
@@ -16,6 +13,9 @@
     },
     selectEngine(id) {
       if (hasNative) window.AuroraNative.selectSearchEngine(id);
+    },
+    setTheme(id) {
+      if (hasNative) window.AuroraNative.setTheme(id);
     },
     open(url) {
       if (hasNative) window.AuroraNative.openResult(url);
@@ -27,7 +27,6 @@
       if (hasNative) window.AuroraNative.openDevTools();
     },
 
-    // --- events FROM Java (Java calls window.Aurora.onEvent) ---
     _handlers: {},
     on(event, cb) { this._handlers[event] = cb; },
     onEvent(event, payload) {

@@ -3,22 +3,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Aurora — Page</title>
+  <title>Reader</title>
   <link rel="stylesheet" href="../shared/theme.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="doc-chrome">
-    <button id="back" class="icon">‹</button>
-    <form id="omni" class="omnibox"><input id="q" type="text" /></form>
-    <button id="dev" class="icon">⚙</button>
-  </header>
-  <div id="progress" class="progress"></div>
-  <!--
-    The remote document Java downloaded is written into this container.
-    Sub-resources (css/js/img) are streamed on demand by Java's ResourceRouter.
-  -->
-  <section id="page" class="page"></section>
+  <main class="reader">
+    <header class="reader-head">
+      <p class="label">Reader mode</p>
+      <h1 id="title">—</h1>
+      <p class="url" id="url"></p>
+    </header>
+    <article id="body" class="body">Loading…</article>
+    <p class="hint">Extracted text from the page. Replace with Readability / C++ later.</p>
+  </main>
   <script src="../shared/aurora-api.js"></script>
   <script src="logic.js"></script>
 </body>

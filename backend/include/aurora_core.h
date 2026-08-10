@@ -1,7 +1,7 @@
 #ifndef AURORA_CORE_H
 #define AURORA_CORE_H
 
-/* Public C API of the Aurora backend. The JNI layer (jni_bridge.c) is the
+/* Public C API of the Aurora backend. The JNI layer (src/jni_bridge.c) is the
  * only translation unit that talks to the JVM; everything else is pure C so
  * the core can be reused / unit-tested off-device. */
 

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tabs</title>
+  <link rel="stylesheet" href="../shared/theme.css" />
+  <style>
+    .wrap { padding: 20px; max-width: 640px; margin: 0 auto; }
+    h1 { font-size: 22px; margin: 0 0 12px; }
+    .item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 14px; background: var(--bg-elev); border: 1px solid var(--border);
+      border-radius: 12px; margin-bottom: 8px; gap: 8px;
+    }
+    .item.active { border-color: var(--accent); }
+    .meta { flex: 1; min-width: 0; }
+    .title { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .url { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .actions button {
+      background: var(--bg-elev-2); color: var(--fg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 10px; font-size: 12px; margin-left: 4px;
+    }
+    .empty { color: var(--muted); padding: 24px 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Tabs</h1>
+    <div id="list" class="empty">No tabs.</div>
+  </div>
+  <script src="../shared/aurora-api.js"></script>
+  <script>
+    Aurora.ready('tabs');
+
+    function render(payload) {
+      const items = (payload && payload.tabs) ? payload.tabs : (Array.isArray(payload) ? payload : []);
+      const activeId = payload && payload.activeId;
+      const el = document.getElementById('list');
+      if (!items.length) {
+        el.className = 'empty';
+        el.textContent = 'No tabs.';
+        return;
+      }
+      el.className = '';
+      el.innerHTML = items.map((t) => {
+        const active = String(t.id) === String(activeId) ? ' active' : '';
+        const title = t.title || (t.url ? t.url : 'New Tab');
+        const url = t.url || '';
+        return '<div class="item' + active + '" data-id="' + t.id + '">' +
+          '<div class="meta"><div class="title">' + title + '</div>' +
+          '<div class="url">' + url + '</div></div>' +
+          '<div class="actions">' +
+          '<button type="button" data-act="switch">Open</button>' +
+          '<button type="button" data-act="close">Close</button>' +
+          '</div></div>';
+      }).join('');
+
+      el.querySelectorAll('.item').forEach((row) => {
+        const id = row.getAttribute('data-id');
+        row.querySelector('[data-act="switch"]').onclick = () => {
+          if (window.AuroraNative && AuroraNative.switchTab) AuroraNative.switchTab(id);
+        };
+        row.querySelector('[data-act="close"]').onclick = () => {
+          if (window.AuroraNative && AuroraNative.closeTab) AuroraNative.closeTab(id);
+        };
+      });
+    }
+
+    Aurora.on('payload', render);
+  </script>
+</body>
+</html>

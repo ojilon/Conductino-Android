@@ -1,16 +1,20 @@
 cmake_minimum_required(VERSION 3.22.1)
 project(aurora_core C)
 
+# C11 for existing sources. CompilerFlags.cmake is ready when we add C++23 modules.
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
-option(BUILD_AURORA_CORE "Build the native Aurora C backend" OFF)
+# Optional: pull in modern C++ flags when CXX sources are added later
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+# include(CompilerFlags)  # enable when first .cpp lands
+
+option(BUILD_AURORA_CORE "Build the native Aurora backend" OFF)
 
 if(BUILD_AURORA_CORE)
 
-    # SQLite
     set(SQLITE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/sqlite)
 
-    # libcurl
     set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
     set(BUILD_CURL_EXE OFF CACHE BOOL "" FORCE)
     set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
@@ -23,17 +27,17 @@ if(BUILD_AURORA_CORE)
     add_subdirectory(third_party/lexbor)
 
     add_library(aurora_core SHARED
-            jni_bridge.c
-            core.c
-            html_parser.c
-            storage.c
-            network.c
+            src/jni_bridge.c
+            src/core.c
+            src/html_parser.c
+            src/storage.c
+            src/network.c
             ${SQLITE_DIR}/sqlite3.c
     )
 
     target_include_directories(aurora_core PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/third_party/curl/include/curl
             ${CMAKE_CURRENT_SOURCE_DIR}/include
+            ${CMAKE_CURRENT_SOURCE_DIR}/third_party/curl/include
             ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lexbor/source
             ${SQLITE_DIR}
     )
