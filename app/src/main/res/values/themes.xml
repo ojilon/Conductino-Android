@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <style name="Theme.ConductinoStudy" parent="Theme.AppCompat.NoActionBar">
         <item name="android:statusBarColor">@color/conductino_bg</item>
         <item name="android:navigationBarColor">@color/conductino_bg</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowBackground">@color/conductino_bg</item>
+        <item name="colorPrimary">@color/conductino_accent</item>
+        <item name="colorAccent">@color/conductino_accent</item>
+        <item name="android:textColorPrimary">@color/conductino_fg</item>
+        <item name="android:textColorSecondary">@color/conductino_muted</item>
     </style>
 </resources>

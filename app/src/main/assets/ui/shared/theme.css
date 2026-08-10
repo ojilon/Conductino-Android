@@ -1,31 +1,54 @@
-/* Shared design tokens across every UI state. */
+/* Shared design tokens — keep in sync with res/values/colors.xml */
 :root {
   --bg: #0b1020;
   --bg-elev: #141a30;
+  --bg-elev-2: #1e2745;
   --fg: #e8ecfb;
   --muted: #8891b4;
   --accent: #5ee7c4;
   --accent2: #7c7bff;
+  --border: #26305a;
+  --danger: #ff6b8a;
   --radius: 14px;
+  --radius-sm: 10px;
   --font-display: "Space Mono", ui-monospace, monospace;
-  --font-body: system-ui, -apple-system, sans-serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
+
 * { box-sizing: border-box; }
+
 html, body {
-  margin: 0; height: 100%;
+  margin: 0;
+  height: 100%;
   background: radial-gradient(120% 120% at 50% -10%, #16204a 0%, var(--bg) 55%);
   color: var(--fg);
   font-family: var(--font-body);
   -webkit-tap-highlight-color: transparent;
 }
+
 .omnibox {
-  display: flex; gap: 8px; align-items: center;
+  display: flex;
+  gap: 8px;
+  align-items: center;
   background: var(--bg-elev);
-  border: 1px solid #26305a;
+  border: 1px solid var(--border);
   border-radius: 999px;
   padding: 12px 16px;
 }
+
 .omnibox input {
-  flex: 1; background: transparent; border: 0; outline: 0;
-  color: var(--fg); font-size: 16px;
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--fg);
+  font-size: 16px;
+}
+
+/* Utility for future tool surfaces */
+.card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
 }

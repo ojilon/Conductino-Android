@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Keep aligned with assets/ui/shared/theme.css -->
     <color name="conductino_bg">#0B1020</color>
+    <color name="conductino_bg_elev">#141A30</color>
+    <color name="conductino_bg_elev2">#1E2745</color>
+    <color name="conductino_fg">#E8ECFB</color>
+    <color name="conductino_muted">#8891B4</color>
     <color name="conductino_accent">#5EE7C4</color>
     <color name="conductino_accent2">#7C7BFF</color>
+    <color name="conductino_border">#26305A</color>
 </resources>
