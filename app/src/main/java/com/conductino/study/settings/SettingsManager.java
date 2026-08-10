@@ -14,14 +14,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Loads config/settings.json + config/search_engines.json.
- * Selected search engine is persisted in SharedPreferences so the user can
- * change it from Settings without rewriting assets.
- *
- * Extend: add custom engines to search_engines.json or append at runtime
- * via addCustomEngine() (below) and persist a mutable copy under filesDir.
- */
 public class SettingsManager {
 
     private static final SettingsManager INSTANCE = new SettingsManager();
@@ -30,11 +22,16 @@ public class SettingsManager {
 
     private static final String PREFS = "conductino_settings";
     private static final String KEY_ENGINE = "search_engine_id";
+    private static final String KEY_THEME = "theme_id";
+
+    public static final String THEME_AURORA_DARK = "aurora-dark";
+    public static final String THEME_AURORA_DIM = "aurora-dim";
 
     private JSONObject settings = new JSONObject();
     private JSONObject engines = new JSONObject();
     private SharedPreferences prefs;
     private String selectedEngineId;
+    private String themeId = THEME_AURORA_DARK;
 
     public void load(Context ctx) {
         settings = readAsset(ctx, "config/settings.json");
@@ -43,11 +40,21 @@ public class SettingsManager {
 
         String fromJson = engines.optString("default", "duckduckgo");
         selectedEngineId = prefs.getString(KEY_ENGINE, fromJson);
-        // Validate id still exists
         if (engineQueryUrl(selectedEngineId).isEmpty()) {
             selectedEngineId = fromJson;
         }
-        LogManager.i("Settings", "loaded config, engine=" + selectedEngineId);
+
+        String appearanceDefault = THEME_AURORA_DARK;
+        JSONObject appearance = settings.optJSONObject("appearance");
+        if (appearance != null) {
+            appearanceDefault = appearance.optString("theme", THEME_AURORA_DARK);
+        }
+        themeId = prefs.getString(KEY_THEME, appearanceDefault);
+        if (!isKnownTheme(themeId)) {
+            themeId = THEME_AURORA_DARK;
+        }
+
+        LogManager.i("Settings", "engine=" + selectedEngineId + " theme=" + themeId);
     }
 
     public int maxSearchResults() {
@@ -62,50 +69,51 @@ public class SettingsManager {
                 : "AuroraBrowser/0.1";
     }
 
-    /** Currently selected engine id (persisted). */
     public String defaultEngine() {
         return selectedEngineId != null ? selectedEngineId : "duckduckgo";
     }
 
     public void setDefaultEngine(String id) {
-        if (id == null || engineQueryUrl(id).isEmpty()) {
-            LogManager.i("Settings", "ignore unknown engine id=" + id);
-            return;
-        }
+        if (id == null || engineQueryUrl(id).isEmpty()) return;
         selectedEngineId = id;
-        if (prefs != null) {
-            prefs.edit().putString(KEY_ENGINE, id).apply();
-        }
+        if (prefs != null) prefs.edit().putString(KEY_ENGINE, id).apply();
         LogManager.i("Settings", "search engine -> " + id);
     }
 
-    public String engineQueryUrl(String id) {
-        return engineField(id, "queryUrl");
+    public String themeId() {
+        return themeId != null ? themeId : THEME_AURORA_DARK;
     }
 
-    public String engineSuggestUrl(String id) {
-        return engineField(id, "suggestUrl");
+    public void setThemeId(String id) {
+        if (!isKnownTheme(id)) {
+            LogManager.i("Settings", "ignore unknown theme=" + id);
+            return;
+        }
+        themeId = id;
+        if (prefs != null) prefs.edit().putString(KEY_THEME, id).apply();
+        LogManager.i("Settings", "theme -> " + id);
     }
 
-    public String engineResultSelector(String id) {
-        return engineField(id, "resultSelector");
+    public static boolean isKnownTheme(String id) {
+        return THEME_AURORA_DARK.equals(id) || THEME_AURORA_DIM.equals(id);
     }
+
+    public String engineQueryUrl(String id) { return engineField(id, "queryUrl"); }
+    public String engineSuggestUrl(String id) { return engineField(id, "suggestUrl"); }
+    public String engineResultSelector(String id) { return engineField(id, "resultSelector"); }
 
     public String engineName(String id) {
         String name = engineField(id, "name");
         return name.isEmpty() ? id : name;
     }
 
-    /** Build a full search URL for the given query using the selected engine. */
     public String buildSearchUrl(String query) {
         return buildSearchUrl(defaultEngine(), query);
     }
 
     public String buildSearchUrl(String engineId, String query) {
         String template = engineQueryUrl(engineId);
-        if (template.isEmpty()) {
-            template = "https://duckduckgo.com/html/?q={query}";
-        }
+        if (template.isEmpty()) template = "https://duckduckgo.com/html/?q={query}";
         String encoded;
         try {
             encoded = URLEncoder.encode(query == null ? "" : query, "UTF-8");
@@ -115,7 +123,6 @@ public class SettingsManager {
         return template.replace("{query}", encoded);
     }
 
-    /** Lightweight list for Settings UI / engine picker. */
     public List<EngineInfo> listEngines() {
         List<EngineInfo> out = new ArrayList<>();
         JSONArray arr = engines.optJSONArray("engines");
@@ -134,11 +141,8 @@ public class SettingsManager {
         public final String id;
         public final String name;
         public final String queryUrl;
-
         public EngineInfo(String id, String name, String queryUrl) {
-            this.id = id;
-            this.name = name;
-            this.queryUrl = queryUrl;
+            this.id = id; this.name = name; this.queryUrl = queryUrl;
         }
     }
 
@@ -147,9 +151,7 @@ public class SettingsManager {
         if (arr == null) return "";
         for (int i = 0; i < arr.length(); i++) {
             JSONObject e = arr.optJSONObject(i);
-            if (e != null && id.equals(e.optString("id"))) {
-                return e.optString(field, "");
-            }
+            if (e != null && id.equals(e.optString("id"))) return e.optString(field, "");
         }
         return "";
     }

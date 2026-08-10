@@ -12,18 +12,16 @@
          color: var(--muted); margin: 20px 0 10px; font-weight: 600; }
     .row {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 14px 16px; background: var(--bg-elev); border: 1px solid #26305a;
+      padding: 14px 16px; background: var(--bg-elev); border: 1px solid var(--border);
       border-radius: 12px; margin-bottom: 8px;
     }
-    .engines { display: flex; flex-direction: column; gap: 8px; }
-    .engine-btn {
+    .engines, .themes { display: flex; flex-direction: column; gap: 8px; }
+    .pick {
       text-align: left; padding: 14px 16px; border-radius: 12px;
-      border: 1px solid #26305a; background: var(--bg-elev); color: var(--fg);
+      border: 1px solid var(--border); background: var(--bg-elev); color: var(--fg);
       font-size: 15px; cursor: pointer;
     }
-    .engine-btn.active {
-      border-color: var(--accent); color: var(--accent);
-    }
+    .pick.active { border-color: var(--accent); color: var(--accent); }
     .hint { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
   </style>
 </head>
@@ -33,12 +31,17 @@
 
     <h2>Search engine</h2>
     <div class="engines" id="engines">
-      <!-- filled by logic; defaults mirror search_engines.json -->
-      <button type="button" class="engine-btn" data-id="duckduckgo">DuckDuckGo</button>
-      <button type="button" class="engine-btn" data-id="google">Google</button>
-      <button type="button" class="engine-btn" data-id="brave">Brave Search</button>
+      <button type="button" class="pick" data-engine="duckduckgo">DuckDuckGo</button>
+      <button type="button" class="pick" data-engine="google">Google</button>
+      <button type="button" class="pick" data-engine="brave">Brave Search</button>
     </div>
-    <p class="hint">Choice is saved on device. Omnibox and the welcome search both use this engine.</p>
+
+    <h2>Theme</h2>
+    <div class="themes" id="themes">
+      <button type="button" class="pick" data-theme="aurora-dark">Aurora Dark</button>
+      <button type="button" class="pick" data-theme="aurora-dim">Aurora Dim</button>
+    </div>
+    <p class="hint">Theme is saved on device. HTML surfaces can read the choice via payload; native chrome uses the dark palette.</p>
 
     <h2>General</h2>
     <div class="row"><span>HTTPS only</span><b>On</b></div>
@@ -48,28 +51,40 @@
   <script>
     Aurora.ready('settings');
 
-    const buttons = document.querySelectorAll('.engine-btn');
-    function mark(id) {
-      buttons.forEach((b) => {
-        b.classList.toggle('active', b.getAttribute('data-id') === id);
+    function mark(sel, attr, id) {
+      document.querySelectorAll(sel).forEach((b) => {
+        b.classList.toggle('active', b.getAttribute(attr) === id);
       });
     }
 
-    buttons.forEach((b) => {
+    document.querySelectorAll('[data-engine]').forEach((b) => {
       b.addEventListener('click', () => {
-        const id = b.getAttribute('data-id');
+        const id = b.getAttribute('data-engine');
         Aurora.selectEngine(id);
-        mark(id);
+        mark('[data-engine]', 'data-engine', id);
+      });
+    });
+
+    document.querySelectorAll('[data-theme]').forEach((b) => {
+      b.addEventListener('click', () => {
+        const id = b.getAttribute('data-theme');
+        Aurora.setTheme(id);
+        mark('[data-theme]', 'data-theme', id);
+        document.documentElement.setAttribute('data-theme', id);
       });
     });
 
     Aurora.on('payload', (d) => {
-      if (d && d.engine) mark(d.engine);
+      if (d && d.engine) mark('[data-engine]', 'data-engine', d.engine);
+      if (d && d.theme) {
+        mark('[data-theme]', 'data-theme', d.theme);
+        document.documentElement.setAttribute('data-theme', d.theme);
+      }
       if (d && d.maxResults) document.getElementById('max').textContent = d.maxResults;
     });
 
-    // Default highlight until payload arrives
-    mark('duckduckgo');
+    mark('[data-engine]', 'data-engine', 'duckduckgo');
+    mark('[data-theme]', 'data-theme', 'aurora-dark');
   </script>
 </body>
 </html>

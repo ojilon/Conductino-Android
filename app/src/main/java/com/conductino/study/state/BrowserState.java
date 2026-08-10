@@ -10,6 +10,7 @@ public enum BrowserState {
     DOWNLOADS ("downloads/index.html"),
     HISTORY   ("history/index.html"),
     BOOKMARKS ("bookmarks/index.html"),
+    TABS      ("tabs/index.html"),
     ERROR     ("error/index.html"),
     EXTERNAL  ("");
 
